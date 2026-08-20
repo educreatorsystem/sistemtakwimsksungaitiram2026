@@ -1,1180 +1,157 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ms">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Takwim Sekolah 2027 - SK Sungai Tiram</title>
-    <!-- GitHub deployment version: ZIP generator, Google Sheet guide, and monthly report UI removed -->
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#f0f7ff',
-                            100: '#e0effe',
-                            500: '#1d4ed8',
-                            600: '#1e40af',
-                            700: '#1e3a8a',
-                            800: '#1e293b',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
-    <style>
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        /* Print CSS Optimization */
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-            .print-only {
-                display: block !important;
-            }
-            body {
-                background: white !important;
-                color: black !important;
-                font-size: 11pt;
-            }
-            .card-shadow {
-                box-shadow: none !important;
-                border: 1px solid #cbd5e1 !important;
-            }
-            .calendar-grid {
-                page-break-inside: avoid;
-            }
-            @page {
-                size: portrait;
-                margin: 1cm;
-            }
-            .page-break-before {
-                page-break-before: always;
-            }
-        }
-
-        .print-only {
-            display: none;
-        }
-
-        /* Glassmorphism subtle effects */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0f4c81" />
+  <title>Takwim Sekolah 2027</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+<body>
+  <div id="loadingOverlay" class="loading-overlay hidden" aria-live="polite">
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <div id="loadingText">Memuatkan takwim...</div>
+    </div>
+  </div>
 
-    <!-- HEADER SISTEM -->
-    <header class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-xl relative overflow-hidden border-b-4 border-amber-400">
-        <!-- Subtle decorative background shapes -->
-        <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute left-1/3 -top-10 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-                
-                <!-- School Logo & Branding -->
-                <div class="flex items-center gap-5 text-center md:text-left">
-                    <div class="relative group flex-shrink-0">
-                        <div class="absolute -inset-1 bg-gradient-to-r from-amber-400 to-blue-400 rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-300"></div>
-                        <div class="relative bg-white p-2.5 rounded-2xl shadow-lg border border-white/20">
-                            <img src="https://iili.io/CLgnoXf.md.png" 
-                                 alt="Lencana Sekolah Kebangsaan Sungai Tiram" 
-                                 class="h-20 w-auto object-contain max-w-[90px]"
-                                 onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e3a8a/ffffff?text=SKST';">
-                        </div>
-                    </div>
-                    <div>
-                        <span class="inline-block px-3 py-1 bg-amber-400/20 text-amber-300 text-xs font-bold tracking-wider uppercase rounded-full border border-amber-400/30 mb-1">
-                            SEKOLAH KEBANGSAAN SUNGAI TIRAM
-                        </span>
-                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white drop-shadow-sm">
-                            SISTEM TAKWIM SEKOLAH 2027
-                        </h1>
-                        <p class="text-blue-200 text-sm sm:text-base font-medium mt-0.5">
-                            Perancangan Program & Aktiviti Sekolah Tahun 2027
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Header Actions & Admin Status Badge -->
-                <div class="flex flex-wrap items-center justify-center md:justify-end gap-3 no-print">
-<div id="gasSyncBadge" class="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-800 text-slate-200 rounded-xl text-xs font-medium border border-slate-700/60 flex items-center gap-2 cursor-pointer transition" onclick="refreshDataFromGAS()" title="Klik untuk menyemak & muat semula data Google Sheet">
-                        <span class="relative flex h-2.5 w-2.5">
-                          <span id="gasStatusPing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                          <span id="gasStatusDot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400"></span>
-                        </span>
-                        <span id="gasStatusText" class="font-semibold text-[11px]">Memeriksa Google Sheet...</span>
-                    </div>
-<button id="adminAuthBtn" onclick="toggleAdminModal()" class="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-900 rounded-xl text-sm font-bold shadow-lg shadow-amber-500/20 transition duration-200 flex items-center gap-2 border border-amber-300">
-                        <i class="fa-solid fa-lock" id="adminBtnIcon"></i>
-                        <span id="adminBtnText">🔐 ADMIN / SUNTING TAKWIM</span>
-                    </button>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Admin Mode Bar (Visible when logged in) -->
-        <div id="adminStatusBar" class="hidden bg-amber-400 text-slate-950 font-bold px-4 py-2 text-center text-xs sm:text-sm flex items-center justify-between no-print border-t border-amber-500">
-            <div class="flex items-center gap-2 max-w-7xl mx-auto w-full justify-between">
-                <span class="flex items-center gap-2">
-                    <span class="relative flex h-3 w-3">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-900 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-3 w-3 bg-slate-900"></span>
-                    </span>
-                    MODE ADMIN AKTIF — Anda mempunyai kebenaran penuh untuk menambah, menyunting, dan memadam program.
-                </span>
-                <button onclick="handleLogout()" class="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white text-xs rounded-lg transition flex items-center gap-1.5 shadow">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>LOG KELUAR</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- MAIN CONTAINER -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
-
-        <!-- NAVIGASI BULAN UTAMA & CARIAN -->
-        <section class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 mb-6 no-print">
-            <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
-                
-                <!-- Prev / Select / Next Controls -->
-                <div class="flex items-center justify-between w-full lg:w-auto gap-2">
-                    <button onclick="changeMonth(-1)" class="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium text-xs sm:text-sm transition flex items-center gap-1.5 active:scale-95">
-                        <i class="fa-solid fa-chevron-left text-xs"></i>
-                        <span class="hidden sm:inline">Bulan</span> Sebelumnya
-                    </button>
-
-                    <div class="relative min-w-[170px]">
-                        <select id="monthSelect" onchange="selectMonth(this.value)" class="w-full bg-blue-50/80 border-2 border-blue-200 text-blue-900 font-bold text-sm sm:text-base rounded-xl py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer text-center pr-8 shadow-inner">
-                            <!-- Months populated by JS -->
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-blue-700">
-                            <i class="fa-solid fa-chevron-down text-xs"></i>
-                        </div>
-                    </div>
-
-                    <button onclick="changeMonth(1)" class="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium text-xs sm:text-sm transition flex items-center gap-1.5 active:scale-95">
-                        <span class="hidden sm:inline">Bulan</span> Seterusnya
-                        <i class="fa-solid fa-chevron-right text-xs"></i>
-                    </button>
-                </div>
-
-                <!-- Quick Month Pill Selector (Horizontal scrollable) -->
-                <div class="w-full overflow-x-auto py-1 my-1 lg:my-0 no-scrollbar flex items-center gap-1.5 justify-start lg:justify-center border-y lg:border-none border-slate-100" id="monthTabsContainer">
-                    <!-- JS will render 12 month tabs -->
-                </div>
-
-                <!-- Right Actions: Search & Print -->
-                <div class="flex items-center gap-2 w-full lg:w-auto justify-end">
-                    <!-- Search Input -->
-                    <div class="relative flex-grow lg:flex-grow-0 min-w-[200px]">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="🔍 Cari program..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-                        <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-
-                    <!-- Print Button -->
-                    <button onclick="window.print()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 shadow-sm shrink-0">
-                        <i class="fa-solid fa-print"></i>
-                        <span class="hidden sm:inline">🖨️ CETAK BULAN INI</span>
-                        <span class="sm:hidden">Cetak</span>
-                    </button>
-
-                    <!-- Add Event Button (Admin mode only trigger) -->
-                    <button id="adminAddBtn" onclick="openAddModal()" class="hidden px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-1.5 shadow-md shrink-0">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>+ TAMBAH PROGRAM</span>
-                    </button>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- DASHBOARD RINGKAS (STATISTIK BULANAN) -->
-        <section class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 no-print">
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Jumlah Program</p>
-                    <p id="statTotal" class="text-2xl sm:text-3xl font-extrabold text-slate-800 mt-1">0</p>
-                    <p class="text-[10px] text-slate-400 mt-0.5" id="statMonthLabel">Bulan Ini</p>
-                </div>
-                <div class="h-11 w-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg font-bold">
-                    <i class="fa-regular fa-calendar-check"></i>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-blue-600">Akademik</p>
-                    <p id="statAkademik" class="text-2xl sm:text-3xl font-extrabold text-blue-700 mt-1">0</p>
-                    <p class="text-[10px] text-slate-400 mt-0.5">Program & Aktiviti</p>
-                </div>
-                <div class="h-11 w-11 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg font-bold">
-                    <i class="fa-solid fa-book-open"></i>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-amber-600">Kokurikulum / Sukan</p>
-                    <p id="statKoku" class="text-2xl sm:text-3xl font-extrabold text-amber-700 mt-1">0</p>
-                    <p class="text-[10px] text-slate-400 mt-0.5">Program & Sukan</p>
-                </div>
-                <div class="h-11 w-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg font-bold">
-                    <i class="fa-solid fa-trophy"></i>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-purple-600">Pengurusan & HEM</p>
-                    <p id="statMesyuarat" class="text-2xl sm:text-3xl font-extrabold text-purple-700 mt-1">0</p>
-                    <p class="text-[10px] text-slate-400 mt-0.5">Mesyuarat & Hal Murid</p>
-                </div>
-                <div class="h-11 w-11 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg font-bold">
-                    <i class="fa-solid fa-people-group"></i>
-                </div>
-            </div>
-        </section>
-
-        <!-- PRINT HEADER (ONLY VISIBLE WHEN PRINTING) -->
-        <div class="print-only mb-6 text-center border-b-2 border-slate-800 pb-4">
-            <div class="flex items-center justify-center gap-4 mb-2">
-                <img src="https://iili.io/CLgnoXf.md.png" class="h-16 w-auto" alt="Lencana SKST">
-                <div>
-                    <h2 class="text-xl font-bold uppercase tracking-wide">SEKOLAH KEBANGSAAN SUNGAI TIRAM</h2>
-                    <h1 class="text-2xl font-black text-blue-900">TAKWIN SEKOLAH TAHUN 2027</h1>
-                    <p class="text-sm font-semibold text-slate-600" id="printMonthHeader">BULAN JANUARI 2027</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- SEARCH RESULTS BANNER (When active search) -->
-        <div id="searchResultsBanner" class="hidden mb-4 p-3 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-sm flex items-center justify-between no-print">
-            <span id="searchResultText">Hasil Carian...</span>
-            <button onclick="clearSearch()" class="text-xs font-semibold underline hover:text-amber-700">Tunjukkan Kalender Penuh</button>
-        </div>
-
-        <!-- REKA BENTUK KALENDAR SEBENAR 2027 -->
-        <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden mb-8 card-shadow">
-            
-            <!-- Calendar Month Header Bar -->
-            <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800">
-                <div class="flex items-center gap-3">
-                    <i class="fa-regular fa-calendar-days text-amber-400 text-xl"></i>
-                    <h2 id="currentMonthTitle" class="text-xl sm:text-2xl font-black tracking-wide uppercase">
-                        JANUARI 2027
-                    </h2>
-                </div>
-                <span class="text-xs font-semibold bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">
-                    Tahun 2027
-                </span>
-            </div>
-
-            <!-- DAYS HEADER (AHAD - SABTU) -->
-            <div class="grid grid-cols-7 bg-slate-100 border-b border-slate-200 text-center text-xs font-extrabold text-slate-700 uppercase tracking-wider py-2.5">
-                <div class="text-red-600">AHAD</div>
-                <div>ISNIN</div>
-                <div>SELASA</div>
-                <div>RABU</div>
-                <div>KHAMIS</div>
-                <div>JUMAAT</div>
-                <div class="text-indigo-600">SABTU</div>
-            </div>
-
-            <!-- CALENDAR DAYS GRID MATRIX -->
-            <div id="calendarGrid" class="grid grid-cols-7 border-collapse min-h-[480px]">
-                <!-- Dynamic Date Cells generated by JavaScript -->
-            </div>
-
-            <!-- PETUNJUK WARNA / LEGEND -->
-            <div class="bg-slate-50 border-t border-slate-200 p-4 no-print">
-                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5">Petunjuk Kategori Program:</p>
-                <div class="flex flex-wrap gap-2.5 text-xs font-semibold">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-100 text-blue-800 border border-blue-200">
-                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Akademik
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-200">
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> Hal Ehwal Murid (HEM)
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-100 text-amber-800 border border-amber-200">
-                        <span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span> Kokurikulum
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-red-100 text-red-800 border border-red-200">
-                        <span class="w-2.5 h-2.5 rounded-full bg-red-600"></span> Sukan
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-purple-100 text-purple-800 border border-purple-200">
-                        <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span> Mesyuarat
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-100 text-teal-800 border border-teal-200">
-                        <span class="w-2.5 h-2.5 rounded-full bg-teal-600"></span> Program Sekolah
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-100 text-rose-800 border border-rose-200">
-                        <span class="w-2.5 h-2.5 rounded-full bg-rose-600"></span> Cuti / Perayaan
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-200 text-slate-800 border border-slate-300">
-                        <span class="w-2.5 h-2.5 rounded-full bg-slate-600"></span> Lain-lain
-                    </span>
-                </div>
-            </div>
-
-        </section>
-
-        <!-- PAPARAN SENARAI PROGRAM BULAN INI -->
-        <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 sm:p-6 card-shadow">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-200">
-                <div>
-                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-list-check text-blue-600"></i>
-                        <span>SENARAI PROGRAM BULAN INI</span>
-                    </h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Senarai lengkap aktiviti mengikut susunan tarikh</p>
-                </div>
-                <div class="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1 rounded-lg">
-                    <span id="monthlyCountTag">0 Program Dijadualkan</span>
-                </div>
-            </div>
-
-            <!-- Table View -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50 text-slate-600 font-bold text-xs uppercase tracking-wider border-b border-slate-200">
-                            <th class="py-3 px-3 w-28">Tarikh</th>
-                            <th class="py-3 px-3 w-24">Hari</th>
-                            <th class="py-3 px-3">Program & Catatan</th>
-                            <th class="py-3 px-3 w-32">Masa</th>
-                            <th class="py-3 px-3 w-36">Tempat</th>
-                            <th class="py-3 px-3 w-36">Kategori</th>
-                            <th class="py-3 px-3 w-24 text-center admin-action-col hidden no-print">Tindakan</th>
-                        </tr>
-                    </thead>
-                    <tbody id="monthlyTableBody" class="divide-y divide-slate-100">
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Empty State -->
-            <div id="emptyListState" class="hidden text-center py-12">
-                <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
-                    <i class="fa-regular fa-folder-open"></i>
-                </div>
-                <h4 class="text-sm font-bold text-slate-700">Tiada Program Dijadualkan</h4>
-                <p class="text-xs text-slate-400 mt-1">Belum ada acara atau program dimasukkan bagi bulan ini.</p>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800 no-print mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-2">
-            <p class="font-bold text-slate-300">SEKOLAH KEBANGSAAN SUNGAI TIRAM &copy; 2027</p>
-            <p>Sistem Takwim Sekolah 2027 • Pengurusan Perancangan & Aktiviti Tahunan</p>
-            <p class="text-[11px] text-slate-500 pt-2">Dikemaskini untuk kegunaan rasmi pengurusan sekolah, guru, dan staf.</p>
-        </div>
-    </footer>
-
-    <!-- MODAL 1: LOGIN ADMIN POPUP -->
-    <div id="loginModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative animate-in fade-in zoom-in duration-200">
-            <button onclick="toggleAdminModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-
-            <div class="text-center mb-6">
-                <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl shadow-inner">
-                    <i class="fa-solid fa-user-shield"></i>
-                </div>
-                <h3 class="text-xl font-black text-slate-900">LOG MASUK ADMIN</h3>
-                <p class="text-xs text-slate-500 mt-1">Sila masukkan maklumat laluan pengurusan takwim</p>
-            </div>
-
-            <form onsubmit="handleLogin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">ID ADMIN</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                        <input type="text" id="loginId" required placeholder="Masukkan ID Admin" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">PASSWORD</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-key absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                        <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition">
-                    </div>
-                </div>
-
-                <div id="loginError" class="hidden text-xs text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200 font-semibold text-center">
-                    ID atau kata laluan tidak sah. Sila cuba lagi.
-                </div>
-
-                <div class="pt-2">
-                    <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm rounded-xl shadow-lg shadow-amber-500/20 transition active:scale-[0.98]">
-                        LOG MASUK
-                    </button>
-                </div>
-            </form>
-        </div>
+  <header class="site-header print-header">
+    <div class="brand-wrap">
+      <img id="schoolLogo" class="school-logo" alt="Lencana sekolah" />
+      <div class="brand-copy">
+        <div id="schoolName" class="school-name"></div>
+        <h1>TAKWIM SEKOLAH 2027</h1>
+        <p>Pengurusan Program dan Aktiviti Sekolah</p>
+      </div>
     </div>
 
-    <!-- MODAL 2: TAMBAH / SUNTING PROGRAM -->
-    <div id="eventModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeEventModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+    <div class="header-actions no-print">
+      <button id="adminBtn" class="btn btn-light" type="button">🔐 Sunting Takwim</button>
+      <button id="posterBtn" class="btn btn-ai" type="button" title="Log masuk admin untuk menjana poster AI">✨ Jana Poster AI</button>
+      <button id="printBtn" class="btn btn-light" type="button">🖨️ Cetak Bulan</button>
+      <button id="refreshBtn" class="btn btn-light" type="button">↻ Refresh</button>
+      <button id="logoutBtn" class="btn btn-danger hidden" type="button">Log Keluar</button>
+    </div>
+  </header>
 
-            <div class="flex items-center gap-3 mb-5 border-b border-slate-100 pb-3">
-                <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center font-bold text-lg">
-                    <i class="fa-solid fa-calendar-plus" id="eventModalIcon"></i>
-                </div>
-                <div>
-                    <h3 id="eventModalTitle" class="text-lg font-black text-slate-900">TAMBAH PROGRAM BARU</h3>
-                    <p class="text-xs text-slate-500">Sila isi maklumat program dengan tepat</p>
-                </div>
-            </div>
+  <main class="app-shell">
+    <section class="toolbar no-print" aria-label="Navigasi bulan">
+      <button id="prevMonthBtn" class="icon-btn" type="button" aria-label="Bulan sebelumnya">←</button>
+      <div class="month-center">
+        <label for="monthSelect">Pilih bulan</label>
+        <select id="monthSelect"></select>
+      </div>
+      <button id="nextMonthBtn" class="icon-btn" type="button" aria-label="Bulan seterusnya">→</button>
+      <div id="adminBadge" class="admin-badge hidden">● MOD ADMIN AKTIF</div>
+    </section>
 
-            <form onsubmit="saveEvent(event)" class="space-y-4">
-                <input type="hidden" id="eventId">
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tarikh <span class="text-red-500">*</span></label>
-                        <input type="date" id="eventDate" min="2027-01-01" max="2027-12-31" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Kategori Program</label>
-                        <select id="eventCategory" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="Akademik">Akademik</option>
-                            <option value="Hal Ehwal Murid">Hal Ehwal Murid</option>
-                            <option value="Kokurikulum">Kokurikulum</option>
-                            <option value="Sukan">Sukan</option>
-                            <option value="Mesyuarat">Mesyuarat</option>
-                            <option value="Program Sekolah">Program Sekolah</option>
-                            <option value="Cuti / Perayaan">Cuti / Perayaan</option>
-                            <option value="Lain-lain">Lain-lain</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nama Program <span class="text-red-500">*</span></label>
-                    <input type="text" id="eventTitle" placeholder="Contoh: Mesyuarat Guru Bil. 1/2027" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Masa</label>
-                        <input type="text" id="eventTime" placeholder="Contoh: 8.00 pagi / 2.00 petang" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tempat</label>
-                        <input type="text" id="eventLocation" placeholder="Contoh: Dewan Sekolah / Bilik Mesyuarat" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Catatan Ringkas</label>
-                    <textarea id="eventNotes" rows="2" placeholder="Catatan tambahan, sasaran atau pakaian..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                </div>
-
-                <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-                    <button type="button" onclick="closeEventModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">
-                        BATAL
-                    </button>
-                    <button type="submit" id="saveEventSubmitBtn" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md transition">
-                        SIMPAN
-                    </button>
-                </div>
-            </form>
+    <section class="calendar-card" id="calendarPrintArea">
+      <div class="calendar-heading">
+        <div>
+          <div class="eyebrow">TAKWIM BULANAN</div>
+          <h2 id="monthTitle">JANUARI 2027</h2>
         </div>
-    </div>
-
-    <!-- MODAL 3: PENGESAHAN PADAM -->
-    <div id="deleteModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 text-center">
-            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            <h3 class="text-base font-extrabold text-slate-900">Padam Program Ini?</h3>
-            <p class="text-xs text-slate-500 mt-1.5 mb-5">Adakah anda pasti mahu memadam program ini? Tindakan ini tidak boleh dibatalkan.</p>
-            
-            <input type="hidden" id="deleteTargetId">
-
-            <div class="flex items-center justify-center gap-3">
-                <button onclick="closeDeleteModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition w-full">
-                    BATAL
-                </button>
-                <button onclick="confirmDelete()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-md transition w-full">
-                    YA, PADAM
-                </button>
-            </div>
+        <div class="month-summary">
+          <span id="programCount">0 program</span>
         </div>
+      </div>
+
+      <div class="legend" aria-label="Legenda kategori">
+        <span><i class="dot cat-pentadbiran"></i>Pentadbiran</span>
+        <span><i class="dot cat-akademik"></i>Akademik</span>
+        <span><i class="dot cat-hem"></i>HEM</span>
+        <span><i class="dot cat-kokurikulum"></i>Kokurikulum</span>
+        <span><i class="dot cat-sukan"></i>Sukan</span>
+        <span><i class="dot cat-cuti"></i>Cuti</span>
+        <span><i class="dot cat-lain-lain"></i>Lain-lain</span>
+      </div>
+
+      <div class="calendar-scroll">
+        <div class="calendar-grid weekdays" aria-hidden="true">
+          <div>AHAD</div><div>ISNIN</div><div>SELASA</div><div>RABU</div><div>KHAMIS</div><div>JUMAAT</div><div>SABTU</div>
+        </div>
+        <div id="calendarGrid" class="calendar-grid days"></div>
+      </div>
+
+      <div id="emptyMonthMessage" class="empty-message hidden">Tiada program direkodkan untuk bulan ini.</div>
+    </section>
+  </main>
+
+  <!-- Login Admin -->
+  <div id="loginModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <div class="modal-backdrop" data-close="login"></div>
+    <div class="modal-panel modal-small">
+      <button class="modal-close" type="button" data-close="login" aria-label="Tutup">×</button>
+      <div class="modal-icon">🔐</div>
+      <h3 id="loginTitle">Log Masuk Admin</h3>
+      <p class="muted">Masukkan ID dan password admin sekolah untuk mengaktifkan fungsi suntingan.</p>
+      <form id="loginForm" class="form-stack">
+        <label>ID Admin<input id="adminIdInput" autocomplete="username" required /></label>
+        <label>Password<input id="adminPasswordInput" type="password" autocomplete="current-password" required /></label>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Log Masuk</button>
+          <button class="btn btn-secondary" type="button" data-close="login">Batal</button>
+        </div>
+      </form>
     </div>
+  </div>
 
-
-    <!-- TOAST NOTIFICATION CONTAINER -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 max-w-sm bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3 transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none no-print">
-        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
-        <span id="toastMessage" class="text-xs font-semibold">Notifikasi</span>
+  <!-- Program -->
+  <div id="eventModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="eventModalTitle">
+    <div class="modal-backdrop" data-close="event"></div>
+    <div class="modal-panel">
+      <button class="modal-close" type="button" data-close="event" aria-label="Tutup">×</button>
+      <div class="modal-icon">📅</div>
+      <h3 id="eventModalTitle">Maklumat Program</h3>
+      <form id="eventForm" class="form-grid">
+        <input id="eventId" type="hidden" />
+        <label>Tarikh<input id="eventDate" type="date" min="2027-01-01" max="2027-12-31" required /></label>
+        <label>Masa<input id="eventTime" placeholder="Contoh: 8.00 pagi" /></label>
+        <label class="full">Nama Program<input id="eventTitle" required maxlength="180" placeholder="Nama program / aktiviti" /></label>
+        <label class="full">Tempat<input id="eventPlace" maxlength="180" placeholder="Tempat program" /></label>
+        <label>Kategori
+          <select id="eventCategory">
+            <option>Pentadbiran</option><option>Akademik</option><option>HEM</option><option>Kokurikulum</option><option>Sukan</option><option>Cuti</option><option>Lain-lain</option>
+          </select>
+        </label>
+        <label class="full">Catatan<textarea id="eventNotes" rows="3" maxlength="500" placeholder="Catatan tambahan (jika ada)"></textarea></label>
+        <div class="form-actions full" id="eventFormActions">
+          <button id="saveEventBtn" class="btn btn-primary" type="submit">Simpan</button>
+          <button id="deleteEventBtn" class="btn btn-danger hidden" type="button">Padam Program</button>
+          <button class="btn btn-secondary" type="button" data-close="event">Batal</button>
+        </div>
+      </form>
     </div>
-
-    <script>
-        // Google Sheet & Apps Script Integration Config
-        const GOOGLE_SHEET_ID = "1ye3NpIRhD0AdjlAVoIeFGjveircuXVlOUDx65jCs80E";
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxleUG3CMPRZYOihiLGjPX0fn80v7k3PJ8ZHRIG6h2REx8_1gX9fw8MRk--hA5O4Ahk/exec";
-
-        // Month Names in Bahasa Melayu
-        const MONTH_NAMES = [
-            "JANUARI", "FEBRUARI", "MAC", "APRIL", "MEI", "JUN",
-            "JULAI", "OGOS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DISEMBER"
-        ];
-
-        // Category Color Mapping
-        const CATEGORY_COLORS = {
-            "Akademik": { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-200", dot: "bg-blue-600" },
-            "Hal Ehwal Murid": { bg: "bg-emerald-100", text: "text-emerald-800", border: "border-emerald-200", dot: "bg-emerald-600" },
-            "Kokurikulum": { bg: "bg-amber-100", text: "text-amber-800", border: "border-amber-200", dot: "bg-amber-600" },
-            "Sukan": { bg: "bg-red-100", text: "text-red-800", border: "border-red-200", dot: "bg-red-600" },
-            "Mesyuarat": { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-200", dot: "bg-purple-600" },
-            "Program Sekolah": { bg: "bg-teal-100", text: "text-teal-800", border: "border-teal-200", dot: "bg-teal-600" },
-            "Cuti / Perayaan": { bg: "bg-rose-100", text: "text-rose-800", border: "border-rose-200", dot: "bg-rose-600" },
-            "Lain-lain": { bg: "bg-slate-200", text: "text-slate-800", border: "border-slate-300", dot: "bg-slate-600" }
-        };
-
-        // Initial Fallback / Pre-loaded Data for 2027
-        const INITIAL_EVENTS = [
-            { id: "evt_20270104", date: "2027-01-04", title: "Mesyuarat Pengurusan Sekolah", time: "8.30 pagi", location: "Bilik Mesyuarat", category: "Mesyuarat", notes: "Semua Barisan Pentadbir" },
-            { id: "evt_20270106", date: "2027-01-06", title: "Mesyuarat Guru Bil. 1/2027", time: "8.30 pagi", location: "Dewan Seri Tiram", category: "Mesyuarat", notes: "Semua Guru Wajib Hadir" },
-            { id: "evt_20270111", date: "2027-01-11", title: "Program Orientasi Murid Tahun 1 & Prasekolah", time: "8.00 pagi", location: "Dewan & Kelas", category: "Hal Ehwal Murid", notes: "Pengurusan HEM & Guru Kelas" },
-            { id: "evt_20270120", date: "2027-01-20", title: "Mesyuarat Panitia Mata Pelajaran Bil. 1", time: "2.00 petang", location: "Bilik Mesyuarat / Bilik Khas", category: "Akademik", notes: "Semua Ketua & AJK Panitia" },
-            { id: "evt_20270203", date: "2027-02-03", title: "Latihan Rumah Sukan Seri Tiram", time: "4.00 petang", location: "Padang Sekolah", category: "Sukan", notes: "Semua Murid Tahap 2" },
-            { id: "evt_20270215", date: "2027-02-15", title: "Program Kemuncak Akademia & Penetapan Sasaran", time: "8.00 pagi", location: "Dewan Seri Tiram", category: "Akademik", notes: "Murid & Ibu Bapa Tahun 6" },
-            { id: "evt_20270312", date: "2027-03-12", title: "Pelancaran Bulan Bahasa & Kebudayaan", time: "7.30 pagi", location: "Dataran Perhimpunan", category: "Kokurikulum", notes: "Panitia BM & BI" },
-            { id: "evt_20270325", date: "2027-03-25", title: "Mesyuarat Agung PIBG Bil. 25", time: "2.30 petang", location: "Dewan Seri Tiram", category: "Program Sekolah", notes: "Kehadiran Semua Guru & Ibu Bapa" },
-            { id: "evt_20270410", date: "2027-04-10", title: "Kejohanan Olahraga Annual SKST 2027", time: "7.30 pagi", location: "Padang Kompleks Sukan", category: "Sukan", notes: "Acara Padang & Balapan" },
-            { id: "evt_20270516", date: "2027-05-16", title: "Sambutan Hari Guru Peringkat Sekolah", time: "8.00 pagi", location: "Dewan Seri Tiram", category: "Program Sekolah", notes: "Anjuran BKGK & Kelab Guru" },
-            { id: "evt_20270831", date: "2027-08-31", title: "Cuti Hari Kebangsaan Malaysia", time: "Sepanjang Hari", location: "-", category: "Cuti / Perayaan", notes: "Cuti Umum" }
-        ];
-
-        // System State Variables
-        let currentMonth = 0; // 0 = Jan, 11 = Dec
-        let currentYear = 2027;
-        let isAdminLoggedIn = false;
-        let events = [];
-        let activeSearchQuery = "";
-        let isSyncingWithGAS = false;
-
-        window.onload = function() {
-            initMonthSelectors();
-            loadEventsFromStorage(); // Immediate offline render
-            fetchDataFromGoogleSheet(); // Background fetch from GAS
-        };
-
-        function setSyncStatus(status, text) {
-            const dot = document.getElementById("gasStatusDot");
-            const ping = document.getElementById("gasStatusPing");
-            const txt = document.getElementById("gasStatusText");
-
-            if (status === "loading") {
-                dot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400";
-                ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75";
-                txt.className = "font-semibold text-[11px] text-amber-300";
-            } else if (status === "success") {
-                dot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400";
-                ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
-                txt.className = "font-semibold text-[11px] text-emerald-300";
-            } else if (status === "error") {
-                dot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500";
-                ping.className = "hidden";
-                txt.className = "font-semibold text-[11px] text-rose-300";
-            }
-            txt.textContent = text;
-        }
-
-        function loadEventsFromStorage() {
-            const saved = localStorage.getItem("SKST_TAKWIM_2027_EVENTS");
-            if (saved) {
-                try {
-                    events = JSON.parse(saved);
-                } catch(e) {
-                    events = [...INITIAL_EVENTS];
-                }
-            } else {
-                events = [...INITIAL_EVENTS];
-            }
-            renderDashboard();
-        }
-
-        function saveEventsToStorage() {
-            localStorage.setItem("SKST_TAKWIM_2027_EVENTS", JSON.stringify(events));
-        }
-
-        async function fetchDataFromGoogleSheet() {
-            setSyncStatus("loading", "Menyemak Google Sheet...");
-            try {
-                const response = await fetch(`${APPS_SCRIPT_URL}?sheetId=${GOOGLE_SHEET_ID}&action=read`);
-                const result = await response.json();
-
-                if (result.status === "success" && Array.isArray(result.data)) {
-                    if (result.data.length > 0) {
-                        events = result.data;
-                        saveEventsToStorage();
-                        showToast("Data Takwim berjaya dimuat turun daripada Google Sheet.", "success");
-                    } else {
-                        // Sheet empty, seed with initial events
-                        seedInitialDataToGoogleSheet();
-                    }
-                    setSyncStatus("success", "Terhubung ke Google Sheet");
-                    renderDashboard();
-                } else {
-                    throw new Error(result.message || "Gagal mengambil data.");
-                }
-            } catch (err) {
-                console.warn("Google Sheet API read fallback:", err);
-                setSyncStatus("error", "Guna Data Tempatan (Offline)");
-                showToast("Mod Luar Talian: Memaparkan data daripada simpanan tempatan.", "info");
-            }
-        }
-
-        function refreshDataFromGAS() {
-            fetchDataFromGoogleSheet();
-        }
-
-        async function seedInitialDataToGoogleSheet() {
-            for (const evt of INITIAL_EVENTS) {
-                await sendToGAS("create", evt);
-            }
-            fetchDataFromGoogleSheet();
-        }
-
-        async function sendToGAS(action, payload) {
-            setSyncStatus("loading", "Kemaskini Google Sheet...");
-            try {
-                // Use text/plain to prevent CORS preflight issues with Google Apps Script
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({
-                        sheetId: GOOGLE_SHEET_ID,
-                        action: action,
-                        payload: payload
-                    })
-                });
-                const res = await response.json();
-                if (res.status === "success") {
-                    setSyncStatus("success", "Terhubung ke Google Sheet");
-                    return true;
-                } else {
-                    throw new Error(res.message);
-                }
-            } catch (e) {
-                console.error("GAS CRUD Error:", e);
-                setSyncStatus("error", "Gagal Simpan ke Cloud");
-                showToast("Data disimpan secara tempatan (Gagal diselaraskan ke Google Sheet).", "error");
-                return false;
-            }
-        }
-
-        function saveEvent(e) {
-            e.preventDefault();
-
-            const id = document.getElementById("eventId").value;
-            const date = document.getElementById("eventDate").value;
-            const title = document.getElementById("eventTitle").value.trim();
-            const time = document.getElementById("eventTime").value.trim();
-            const location = document.getElementById("eventLocation").value.trim();
-            const category = document.getElementById("eventCategory").value;
-            const notes = document.getElementById("eventNotes").value.trim();
-
-            if (!date || !title) {
-                showToast("Sila lengkapkan tarikh dan nama program.", "error");
-                return;
-            }
-
-            if (id) {
-                // UPDATE EXISTING
-                const index = events.findIndex(e => e.id === id);
-                if (index !== -1) {
-                    const updatedEvt = { id, date, title, time, location, category, notes };
-                    events[index] = updatedEvt;
-                    saveEventsToStorage();
-                    showToast("Program berjaya dikemas kini secara tempatan. Menyimpan ke Google Sheet...", "info");
-                    sendToGAS("update", updatedEvt).then(() => {
-                        showToast("Program berjaya dikemas kini dalam Google Sheet!", "success");
-                    });
-                }
-            } else {
-                // CREATE NEW
-                const newId = "evt_" + Date.now();
-                const newEvt = { id: newId, date, title, time, location, category, notes };
-                events.push(newEvt);
-                saveEventsToStorage();
-                showToast("Program berjaya ditambah secara tempatan. Menyimpan ke Google Sheet...", "info");
-                sendToGAS("create", newEvt).then(() => {
-                    showToast("Program berjaya ditambah ke dalam Google Sheet!", "success");
-                });
-            }
-
-            closeEventModal();
-
-            // Auto switch currentMonth to match saved event month
-            const savedMonth = parseInt(date.split('-')[1]) - 1;
-            if (savedMonth >= 0 && savedMonth <= 11) {
-                selectMonth(savedMonth);
-            } else {
-                renderDashboard();
-            }
-        }
-
-        function confirmDelete() {
-            const id = document.getElementById("deleteTargetId").value;
-            events = events.filter(e => e.id !== id);
-            saveEventsToStorage();
-            closeDeleteModal();
-            showToast("Program dipadam secara tempatan. Memadam daripada Google Sheet...", "info");
-            
-            sendToGAS("delete", { id: id }).then(() => {
-                showToast("Program berjaya dipadam daripada Google Sheet!", "success");
-            });
-
-            renderDashboard();
-        }
-
-        // ... existing UI helper functions ...
-        function initMonthSelectors() {
-            const selectEl = document.getElementById("monthSelect");
-            const tabsContainer = document.getElementById("monthTabsContainer");
-
-            selectEl.innerHTML = "";
-            tabsContainer.innerHTML = "";
-
-            MONTH_NAMES.forEach((m, idx) => {
-                const opt = document.createElement("option");
-                opt.value = idx;
-                opt.textContent = `${m} 2027`;
-                selectEl.appendChild(opt);
-
-                const btn = document.createElement("button");
-                btn.className = `month-tab-pill px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap ${idx === currentMonth ? 'bg-blue-600 text-white shadow' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`;
-                btn.textContent = m.substring(0, 3);
-                btn.onclick = () => selectMonth(idx);
-                tabsContainer.appendChild(btn);
-            });
-
-            selectEl.value = currentMonth;
-        }
-
-        function selectMonth(idx) {
-            currentMonth = parseInt(idx);
-            document.getElementById("monthSelect").value = currentMonth;
-            
-            const pills = document.querySelectorAll(".month-tab-pill");
-            pills.forEach((p, i) => {
-                if (i === currentMonth) {
-                    p.className = "month-tab-pill px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-blue-600 text-white shadow";
-                } else {
-                    p.className = "month-tab-pill px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200";
-                }
-            });
-
-            renderDashboard();
-        }
-
-        function changeMonth(delta) {
-            let next = currentMonth + delta;
-            if (next < 0) next = 11;
-            if (next > 11) next = 0;
-            selectMonth(next);
-        }
-
-        function renderDashboard() {
-            const monthName = MONTH_NAMES[currentMonth];
-            document.getElementById("currentMonthTitle").textContent = `${monthName} 2027`;
-            document.getElementById("printMonthHeader").textContent = `TAKWIM BULAN ${monthName} 2027`;
-
-            renderCalendarGrid();
-            renderMonthlyListTable();
-            updateStatistics();
-        }
-
-        function renderCalendarGrid() {
-            const grid = document.getElementById("calendarGrid");
-            grid.innerHTML = "";
-
-            const firstDayIndex = new Date(2027, currentMonth, 1).getDay();
-            const daysInMonth = new Date(2027, currentMonth + 1, 0).getDate();
-
-            const todayDate = new Date();
-            const isReal2027 = todayDate.getFullYear() === 2027;
-            const realTodayDay = todayDate.getDate();
-            const realTodayMonth = todayDate.getMonth();
-
-            const prevMonthDays = new Date(2027, currentMonth, 0).getDate();
-            for (let i = firstDayIndex - 1; i >= 0; i--) {
-                const prevDayNum = prevMonthDays - i;
-                const cell = document.createElement("div");
-                cell.className = "bg-slate-50/50 p-1.5 sm:p-2 min-h-[90px] border-b border-r border-slate-100 text-slate-300 pointer-events-none select-none text-xs";
-                cell.innerHTML = `<span class="font-bold">${prevDayNum}</span>`;
-                grid.appendChild(cell);
-            }
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayDateStr = `2027-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const dateObj = new Date(2027, currentMonth, day);
-                const dayOfWeek = dateObj.getDay();
-
-                const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
-                const isToday = isReal2027 && (realTodayMonth === currentMonth) && (realTodayDay === day);
-
-                const dayEvents = events.filter(e => e.date === dayDateStr);
-
-                const cell = document.createElement("div");
-                cell.className = `p-1.5 sm:p-2 min-h-[105px] border-b border-r border-slate-200/80 transition relative flex flex-col justify-between group ${isWeekend ? 'bg-amber-50/30' : 'bg-white'} ${isToday ? 'ring-2 ring-blue-600 ring-inset bg-blue-50/40' : ''}`;
-
-                cell.onclick = (e) => {
-                    if (!e.target.closest('.event-action-btn') && isAdminLoggedIn) {
-                        openAddModal(dayDateStr);
-                    }
-                };
-
-                let cellTopHtml = `
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="text-xs font-black ${isWeekend ? (dayOfWeek === 0 ? 'text-red-600' : 'text-indigo-600') : 'text-slate-800'} ${isToday ? 'bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center -ml-1' : ''}">
-                            ${day}
-                        </span>
-                        ${isToday ? '<span class="text-[9px] font-extrabold bg-blue-600 text-white px-1.5 py-0.2 rounded uppercase">HARI INI</span>' : ''}
-                        ${isAdminLoggedIn ? `<button title="Tambah Program Pada Tarikh Ini" class="opacity-0 group-hover:opacity-100 text-[10px] bg-slate-100 hover:bg-emerald-100 text-emerald-700 w-5 h-5 rounded-full flex items-center justify-center transition border border-emerald-300 no-print"><i class="fa-solid fa-plus"></i></button>` : ''}
-                    </div>
-                `;
-
-                let eventsHtml = `<div class="space-y-1 overflow-y-auto max-h-[110px] no-scrollbar">`;
-                dayEvents.forEach(evt => {
-                    const style = CATEGORY_COLORS[evt.category] || CATEGORY_COLORS["Lain-lain"];
-                    eventsHtml += `
-                        <div class="p-1 rounded-md text-[11px] leading-tight border ${style.bg} ${style.text} ${style.border} shadow-2xs group/item relative">
-                            <div class="font-bold truncate flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full ${style.dot} shrink-0"></span>
-                                <span class="truncate">${evt.title}</span>
-                            </div>
-                            ${evt.time ? `<div class="text-[10px] opacity-80 pl-2.5"><i class="fa-regular fa-clock text-[9px]"></i> ${evt.time}</div>` : ''}
-                            ${evt.location ? `<div class="text-[10px] opacity-80 pl-2.5 truncate"><i class="fa-solid fa-location-dot text-[9px]"></i> ${evt.location}</div>` : ''}
-
-                            ${isAdminLoggedIn ? `
-                                <div class="mt-1 pt-1 border-t border-slate-300/40 flex items-center justify-end gap-1 font-semibold text-[10px] no-print">
-                                    <button onclick="openEditModal('${evt.id}')" class="event-action-btn hover:underline text-blue-700 px-1">✏️ Sunting</button>
-                                    <button onclick="openDeleteModal('${evt.id}')" class="event-action-btn hover:underline text-red-700 px-1">🗑️ Padam</button>
-                                </div>
-                            ` : ''}
-                        </div>
-                    `;
-                });
-                eventsHtml += `</div>`;
-
-                cell.innerHTML = cellTopHtml + eventsHtml;
-                grid.appendChild(cell);
-            }
-
-            const totalRendered = firstDayIndex + daysInMonth;
-            const remainder = totalRendered % 7;
-            if (remainder !== 0) {
-                const remainingCells = 7 - remainder;
-                for (let i = 1; i <= remainingCells; i++) {
-                    const cell = document.createElement("div");
-                    cell.className = "bg-slate-50/50 p-1.5 sm:p-2 min-h-[90px] border-b border-r border-slate-100 text-slate-300 pointer-events-none select-none text-xs";
-                    cell.innerHTML = `<span class="font-bold">${i}</span>`;
-                    grid.appendChild(cell);
-                }
-            }
-        }
-
-        function renderMonthlyListTable() {
-            const tableBody = document.getElementById("monthlyTableBody");
-            const emptyState = document.getElementById("emptyListState");
-            const countTag = document.getElementById("monthlyCountTag");
-            const adminCols = document.querySelectorAll(".admin-action-col");
-
-            adminCols.forEach(col => {
-                if (isAdminLoggedIn) col.classList.remove("hidden");
-                else col.classList.add("hidden");
-            });
-
-            let monthEvents = [];
-
-            if (activeSearchQuery.trim() !== "") {
-                const query = activeSearchQuery.toLowerCase();
-                monthEvents = events.filter(e => 
-                    e.title.toLowerCase().includes(query) ||
-                    e.category.toLowerCase().includes(query) ||
-                    (e.location && e.location.toLowerCase().includes(query)) ||
-                    e.date.includes(query) ||
-                    (e.notes && e.notes.toLowerCase().includes(query))
-                );
-            } else {
-                const monthPrefix = `2027-${String(currentMonth + 1).padStart(2, '0')}`;
-                monthEvents = events.filter(e => e.date.startsWith(monthPrefix));
-            }
-
-            monthEvents.sort((a, b) => a.date.localeCompare(b.date));
-
-            countTag.textContent = `${monthEvents.length} Program Dijadualkan`;
-
-            if (monthEvents.length === 0) {
-                tableBody.innerHTML = "";
-                emptyState.classList.remove("hidden");
-                return;
-            }
-
-            emptyState.classList.add("hidden");
-            tableBody.innerHTML = "";
-
-            monthEvents.forEach(evt => {
-                const dateParts = evt.date.split('-');
-                const dObj = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
-                const dayNameBM = ["AHAD", "ISNIN", "SELASA", "RABU", "KHAMIS", "JUMAAT", "SABTU"][dObj.getDay()];
-                const formattedDate = `${parseInt(dateParts[2])} ${MONTH_NAMES[dObj.getMonth()]} ${dateParts[0]}`;
-
-                const style = CATEGORY_COLORS[evt.category] || CATEGORY_COLORS["Lain-lain"];
-
-                const tr = document.createElement("tr");
-                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-
-                tr.innerHTML = `
-                    <td class="py-3 px-3 font-extrabold text-slate-800 whitespace-nowrap text-xs sm:text-sm">
-                        📌 ${formattedDate}
-                    </td>
-                    <td class="py-3 px-3 font-semibold text-slate-600 text-xs whitespace-nowrap">
-                        ${dayNameBM}
-                    </td>
-                    <td class="py-3 px-3">
-                        <div class="font-extrabold text-slate-900 text-xs sm:text-sm">${evt.title}</div>
-                        ${evt.notes ? `<div class="text-[11px] text-slate-500 mt-0.5"><i class="fa-regular fa-note-sticky text-slate-400"></i> ${evt.notes}</div>` : ''}
-                    </td>
-                    <td class="py-3 px-3 text-xs text-slate-700 whitespace-nowrap">
-                        ${evt.time ? `🕐 ${evt.time}` : '-'}
-                    </td>
-                    <td class="py-3 px-3 text-xs text-slate-700 whitespace-nowrap">
-                        ${evt.location ? `📍 ${evt.location}` : '-'}
-                    </td>
-                    <td class="py-3 px-3 whitespace-nowrap">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${style.bg} ${style.text} border ${style.border}">
-                            <span class="w-2 h-2 rounded-full ${style.dot}"></span>
-                            ${evt.category}
-                        </span>
-                    </td>
-                    ${isAdminLoggedIn ? `
-                        <td class="py-3 px-3 text-center whitespace-nowrap no-print">
-                            <button onclick="openEditModal('${evt.id}')" class="px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md font-bold text-xs mr-1 border border-blue-200 transition">✏️ Sunting</button>
-                            <button onclick="openDeleteModal('${evt.id}')" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-700 rounded-md font-bold text-xs border border-red-200 transition">🗑️ Padam</button>
-                        </td>
-                    ` : ''}
-                `;
-
-                tableBody.appendChild(tr);
-            });
-        }
-
-        function updateStatistics() {
-            const monthPrefix = `2027-${String(currentMonth + 1).padStart(2, '0')}`;
-            const monthEvents = events.filter(e => e.date.startsWith(monthPrefix));
-
-            document.getElementById("statTotal").textContent = monthEvents.length;
-            document.getElementById("statMonthLabel").textContent = `Bulan ${MONTH_NAMES[currentMonth]}`;
-
-            const akademikCount = monthEvents.filter(e => e.category === "Akademik").length;
-            const kokuCount = monthEvents.filter(e => e.category === "Kokurikulum" || e.category === "Sukan").length;
-            const mesyuaratCount = monthEvents.filter(e => e.category === "Mesyuarat" || e.category === "Hal Ehwal Murid").length;
-
-            document.getElementById("statAkademik").textContent = akademikCount;
-            document.getElementById("statKoku").textContent = kokuCount;
-            document.getElementById("statMesyuarat").textContent = mesyuaratCount;
-        }
-
-        function handleSearch() {
-            const input = document.getElementById("searchInput");
-            activeSearchQuery = input.value;
-            const clearBtn = document.getElementById("clearSearchBtn");
-            const banner = document.getElementById("searchResultsBanner");
-
-            if (activeSearchQuery.trim() !== "") {
-                clearBtn.classList.remove("hidden");
-                banner.classList.remove("hidden");
-                document.getElementById("searchResultText").textContent = `🔍 Carian untuk "${activeSearchQuery}" bagi seluruh takwim 2027`;
-            } else {
-                clearBtn.classList.add("hidden");
-                banner.classList.add("hidden");
-            }
-
-            renderMonthlyListTable();
-        }
-
-        function clearSearch() {
-            document.getElementById("searchInput").value = "";
-            activeSearchQuery = "";
-            document.getElementById("clearSearchBtn").classList.add("hidden");
-            document.getElementById("searchResultsBanner").classList.add("hidden");
-            renderMonthlyListTable();
-        }
-
-        function toggleAdminModal() {
-            if (isAdminLoggedIn) return;
-            const modal = document.getElementById("loginModal");
-            modal.classList.toggle("hidden");
-            document.getElementById("loginError").classList.add("hidden");
-            if (!modal.classList.contains("hidden")) {
-                document.getElementById("loginId").focus();
-            }
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const idInput = document.getElementById("loginId").value.trim();
-            const passInput = document.getElementById("loginPassword").value.trim();
-            const errorDiv = document.getElementById("loginError");
-
-            if (idInput === "gurucemerlang" && passInput === "APC6859") {
-                isAdminLoggedIn = true;
-                errorDiv.classList.add("hidden");
-                document.getElementById("loginModal").classList.add("hidden");
-
-                document.getElementById("adminStatusBar").classList.remove("hidden");
-                document.getElementById("adminAddBtn").classList.remove("hidden");
-                document.getElementById("adminAuthBtn").classList.add("hidden");
-
-                showToast("Log masuk berjaya. Mode suntingan telah diaktifkan.", "success");
-                
-                document.getElementById("loginId").value = "";
-                document.getElementById("loginPassword").value = "";
-
-                renderDashboard();
-            } else {
-                errorDiv.classList.remove("hidden");
-            }
-        }
-
-        function handleLogout() {
-            isAdminLoggedIn = false;
-            document.getElementById("adminStatusBar").classList.add("hidden");
-            document.getElementById("adminAddBtn").classList.add("hidden");
-            document.getElementById("adminAuthBtn").classList.remove("hidden");
-
-            showToast("Anda telah log keluar. Sistem kembali kepada mod biasa.", "info");
-            renderDashboard();
-        }
-
-        function openAddModal(defaultDate = null) {
-            document.getElementById("eventId").value = "";
-            document.getElementById("eventModalTitle").textContent = "TAMBAH PROGRAM BARU";
-            document.getElementById("saveEventSubmitBtn").textContent = "SIMPAN";
-
-            if (defaultDate) {
-                document.getElementById("eventDate").value = defaultDate;
-            } else {
-                const defaultMonthStr = String(currentMonth + 1).padStart(2, '0');
-                document.getElementById("eventDate").value = `2027-${defaultMonthStr}-01`;
-            }
-
-            document.getElementById("eventTitle").value = "";
-            document.getElementById("eventTime").value = "";
-            document.getElementById("eventLocation").value = "";
-            document.getElementById("eventCategory").value = "Akademik";
-            document.getElementById("eventNotes").value = "";
-
-            document.getElementById("eventModal").classList.remove("hidden");
-        }
-
-        function openEditModal(id) {
-            const evt = events.find(e => e.id === id);
-            if (!evt) return;
-
-            document.getElementById("eventId").value = evt.id;
-            document.getElementById("eventModalTitle").textContent = "SUNTING PROGRAM";
-            document.getElementById("saveEventSubmitBtn").textContent = "KEMAS KINI";
-
-            document.getElementById("eventDate").value = evt.date;
-            document.getElementById("eventTitle").value = evt.title;
-            document.getElementById("eventTime").value = evt.time || "";
-            document.getElementById("eventLocation").value = evt.location || "";
-            document.getElementById("eventCategory").value = evt.category;
-            document.getElementById("eventNotes").value = evt.notes || "";
-
-            document.getElementById("eventModal").classList.remove("hidden");
-        }
-
-        function closeEventModal() {
-            document.getElementById("eventModal").classList.add("hidden");
-        }
-
-        function openDeleteModal(id) {
-            document.getElementById("deleteTargetId").value = id;
-            document.getElementById("deleteModal").classList.remove("hidden");
-        }
-
-        function closeDeleteModal() {
-            document.getElementById("deleteModal").classList.add("hidden");
-        }
-
-
-        function showToast(msg, type = "info") {
-            const toast = document.getElementById("toast");
-            const msgEl = document.getElementById("toastMessage");
-            const iconEl = document.getElementById("toastIcon");
-
-            msgEl.textContent = msg;
-
-            if (type === "success") {
-                iconEl.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
-            } else if (type === "error") {
-                iconEl.className = "fa-solid fa-circle-xmark text-red-400 text-lg";
-            } else {
-                iconEl.className = "fa-solid fa-circle-info text-blue-400 text-lg";
-            }
-
-            toast.classList.remove("translate-y-20", "opacity-0", "pointer-events-none");
-
-            setTimeout(() => {
-                toast.classList.add("translate-y-20", "opacity-0", "pointer-events-none");
-            }, 3500);
-        }
-    </script>
+  </div>
+
+  <!-- Poster -->
+  <div id="posterModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="posterModalTitle">
+    <div class="modal-backdrop" data-close="poster"></div>
+    <div class="modal-panel poster-panel">
+      <button class="modal-close" type="button" data-close="poster" aria-label="Tutup">×</button>
+      <div class="poster-modal-head">
+        <div>
+          <div class="modal-icon inline">✨</div>
+          <h3 id="posterModalTitle">Poster AI Bulanan</h3>
+          <p class="muted">Ilustrasi dijana AI; teks program dilukis semula oleh sistem supaya kekal tepat.</p>
+        </div>
+        <div class="poster-actions no-print">
+          <button id="downloadPosterBtn" class="btn btn-primary" type="button">⬇ Muat Turun PNG</button>
+          <button id="printPosterBtn" class="btn btn-secondary" type="button">🖨 Cetak Poster</button>
+          <button id="regeneratePosterBtn" class="btn btn-ai" type="button">✨ Jana Semula</button>
+        </div>
+      </div>
+      <div class="poster-preview-wrap">
+        <canvas id="posterCanvas" width="1600" height="2000" aria-label="Preview poster"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="app.js" defer></script>
 </body>
 </html>

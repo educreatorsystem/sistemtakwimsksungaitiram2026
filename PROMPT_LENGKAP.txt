@@ -1,0 +1,181 @@
+PROMPT PENUH — SISTEM TAKWIM SEKOLAH 2027 + AI POSTER
+
+Bina sebuah aplikasi web lengkap bertajuk “TAKWIM SEKOLAH 2027” untuk sekolah di Malaysia. Sistem mesti sesuai dideploy terus ke GitHub Pages menggunakan HTML, CSS dan JavaScript vanilla tanpa Node.js, npm, PHP atau database lain.
+
+KONFIGURASI
+- Tahun: 2027
+- Nama sekolah: SEKOLAH KEBANGSAAN SUNGAI TIRAM
+- Google Sheet ID: 1ye3NpIRhD0AdjlAVoIeFGjveircuXVlOUDx65jCs80E
+- Nama tab: Takwim2027
+- GID: 1122801319
+- URL CSV: https://docs.google.com/spreadsheets/d/e/2PACX-1vRSBaeb8q0__d2wKSbw9jpVdAFIAUP7KNqzixHqTTnA9yKD3NO0-la8_gCtj6Ex8PJLlb2S1zE-vqi3/pub?gid=1122801319&single=true&output=csv
+- Lencana sekolah: https://iili.io/CLva44f.md.png
+- ID admin: gurucemerlang
+- Password admin: APC6859
+
+PENTING KESELAMATAN
+Jangan simpan password admin atau Gemini API key dalam frontend. Password mesti disahkan di Google Apps Script. Gunakan password hash + salt dalam backend. Gemini API key mesti berada dalam Apps Script Script Properties. Semua operasi tulis dan AI mesti memerlukan token admin.
+
+STRUKTUR GOOGLE SHEET
+Gunakan kolum:
+ID | TARIKH | PROGRAM | MASA | TEMPAT | KATEGORI | CATATAN | UPDATED_AT
+
+Format TARIKH: YYYY-MM-DD.
+Setiap program mesti mempunyai ID unik. Jangan gunakan nombor baris sebagai ID program.
+
+HEADER APLIKASI
+Paparkan:
+- lencana sekolah;
+- nama sekolah;
+- tajuk TAKWIM SEKOLAH 2027;
+- subtajuk Pengurusan Program dan Aktiviti Sekolah;
+- butang Sunting Takwim;
+- butang Jana Poster AI;
+- butang Cetak Bulan;
+- butang Refresh;
+- butang Log Keluar apabila admin aktif.
+
+PAPARAN TAKWIM
+Sediakan pemilih 12 bulan Januari hingga Disember 2027 dan butang bulan sebelumnya/seterusnya.
+Kalender menggunakan 7 kolum:
+AHAD | ISNIN | SELASA | RABU | KHAMIS | JUMAAT | SABTU
+
+Setiap kotak hari memaparkan nombor tarikh dan semua program untuk hari tersebut. Sokong lebih daripada satu program pada hari yang sama.
+
+KATEGORI
+- Pentadbiran
+- Akademik
+- HEM
+- Kokurikulum
+- Sukan
+- Cuti
+- Lain-lain
+
+Gunakan warna lembut berlainan untuk setiap kategori dan sediakan legenda.
+
+SUMBER DATA
+Untuk paparan biasa, ambil data daripada URL CSV Google Sheet. Tambahkan cache busting timestamp. Gunakan parser CSV yang menyokong quoted fields dan koma dalam teks.
+Jangan gunakan localStorage sebagai database.
+Jika CSV gagal, fallback kepada Apps Script action=list jika URL Web App sudah dikonfigurasi.
+
+LOGIN ADMIN
+Apabila pengguna menekan Sunting Takwim, buka modal login dengan ID dan password.
+Frontend menghantar POST text/plain ke Apps Script:
+{ action:"login", id:"...", password:"..." }
+Apps Script melakukan pengesahan dan memulangkan token sesi.
+Simpan token sahaja dalam sessionStorage. Jangan simpan password.
+Token mempunyai tempoh sesi dan semua operasi add/update/delete/generatePoster mesti memerlukan token.
+
+TAMBAH PROGRAM
+Apabila admin aktif, setiap hari mempunyai butang +.
+Buka modal dengan medan:
+- Tarikh
+- Nama Program
+- Masa
+- Tempat
+- Kategori
+- Catatan
+
+POST:
+{ action:"add", token, date, title, time, place, category, notes }
+
+SUNTING PROGRAM
+Klik program dalam mod admin untuk membuka maklumat sedia ada.
+POST:
+{ action:"update", token, id, date, title, time, place, category, notes }
+
+PADAM PROGRAM
+Paparkan confirmation dahulu.
+POST:
+{ action:"delete", token, id }
+
+Selepas add/update/delete, refresh data melalui Apps Script action=list tanpa reload keseluruhan halaman dan kekalkan bulan semasa.
+
+PAPARAN BUKAN ADMIN
+Pengguna biasa boleh klik program untuk melihat butiran tetapi semua field mestilah read-only. Mereka tidak boleh tambah, sunting atau padam.
+
+CETAK TAKWIM
+Butang Cetak Bulan mencetak HANYA bulan yang dipilih.
+Gunakan @media print dan @page size A4 landscape.
+Paparkan lencana sekolah, nama sekolah, nama bulan, tahun, kalender dan program.
+Sembunyikan semua butang, modal, toast dan loading indicator semasa print.
+
+AI POSTER BULANAN
+Fungsi AI hanya aktif selepas login admin supaya API key/quota tidak boleh digunakan oleh orang awam.
+
+Apabila admin menekan Jana Poster AI:
+1. Frontend menghantar month/year/token kepada Apps Script action=generatePoster.
+2. Apps Script membaca sendiri data sebenar bulan tersebut daripada Google Sheet.
+3. Jika tiada program, pulangkan mesej “Tiada program direkodkan untuk bulan ini. Poster tidak dapat dijana.”
+4. Apps Script membina prompt berdasarkan program dan kategori bulan tersebut.
+5. Apps Script memanggil Gemini Image API menggunakan model gemini-3.1-flash-image.
+6. AI HANYA menjana ilustrasi hero 16:9 tanpa sebarang teks, nombor, logo, watermark atau lencana.
+7. Apps Script memulangkan ilustrasi base64 serta data program sebenar.
+8. Frontend menggunakan HTML Canvas untuk membina poster akhir dengan saiz 1600×2000.
+
+PENTING: Jangan minta AI menulis senarai program terus ke dalam imej kerana AI boleh tersalah eja. Semua teks poster mesti dilukis oleh Canvas berdasarkan data Google Sheet.
+
+POSTER AKHIR WAJIB ADA
+- lencana sekolah;
+- nama sekolah;
+- tajuk “PROGRAM BULAN [BULAN] 2027”;
+- subtajuk “Hebahan Aktiviti dan Program Sekolah”;
+- ilustrasi AI yang relevan;
+- semua program bulan tersebut, mengikut tarikh;
+- tarikh;
+- nama program;
+- masa jika ada;
+- tempat jika ada;
+- warna kategori;
+- footer “Sumber: Takwim Sekolah 2027”.
+
+Untuk bilangan program yang banyak, gunakan layout 1, 2 atau 3 kolum secara automatik supaya semua program masih dapat dimuatkan.
+
+Sediakan modal preview poster dengan butang:
+- Muat Turun PNG
+- Cetak Poster
+- Jana Semula
+- Tutup
+
+DOWNLOAD DAN PRINT POSTER
+Poster mesti boleh dimuat turun sebagai PNG.
+Cetakan poster menggunakan A4 portrait.
+
+GEMINI BACKEND
+Gunakan Google Gemini Interactions API:
+POST https://generativelanguage.googleapis.com/v1beta/interactions
+Header x-goog-api-key daripada Script Properties.
+Model: gemini-3.1-flash-image
+response_format image/jpeg, aspect_ratio 16:9, image_size 1K.
+Parse schema semasa melalui steps[].content[] dan cari blok type=image dengan data base64. Tambah fallback untuk schema lama jika perlu.
+
+REKA BENTUK
+Gaya profesional, ceria dan mesra sekolah:
+- gradient biru pada header;
+- background kelabu/biru sangat cerah;
+- kad putih;
+- rounded corners;
+- shadow lembut;
+- typography Inter/Nunito;
+- responsif untuk desktop, tablet dan telefon;
+- horizontal scrolling untuk kalender pada telefon jika perlu.
+
+LOADING/TOAST
+Sediakan loading overlay dan toast untuk:
+- loading data;
+- login;
+- simpan;
+- update;
+- delete;
+- AI sedang menjana ilustrasi;
+- success/error.
+
+FAIL YANG PERLU DIHASILKAN
+1. index.html
+2. style.css
+3. app.js
+4. AppsScript.gs
+5. appsscript.json
+6. README.md
+
+Pastikan semua kod lengkap, berfungsi dan bukan pseudocode. Jangan letakkan password atau Gemini API key dalam frontend.
