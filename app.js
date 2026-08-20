@@ -21,18 +21,12 @@ const CATEGORY_SLUG = {
   'Cuti': 'cuti',
   'Lain-lain': 'lain-lain'
 };
-const POSTER_COLORS = {
-  'Pentadbiran': '#D9A62E', 'Akademik': '#3D8DCA', 'HEM': '#A45D9C',
-  'Kokurikulum': '#47A778', 'Sukan': '#DD774A', 'Cuti': '#D55668', 'Lain-lain': '#7F8B99'
-};
 
 const state = {
   month: new Date().getFullYear() === CONFIG.YEAR ? new Date().getMonth() : 0,
   events: [],
   isAdmin: false,
-  token: sessionStorage.getItem('takwimAdminToken') || '',
-  posterDataUrl: '',
-  posterEvents: []
+  token: sessionStorage.getItem('takwimAdminToken') || ''
 };
 
 const el = {};
@@ -51,11 +45,10 @@ async function init() {
 
 function cacheElements() {
   [
-    'loadingOverlay','loadingText','schoolLogo','schoolName','adminBtn','posterBtn','printBtn','refreshBtn','logoutBtn',
+    'loadingOverlay','loadingText','schoolLogo','schoolName','adminBtn','printBtn','refreshBtn','logoutBtn',
     'prevMonthBtn','nextMonthBtn','monthSelect','adminBadge','monthTitle','programCount','calendarGrid','emptyMonthMessage',
     'loginModal','loginForm','adminIdInput','adminPasswordInput','eventModal','eventModalTitle','eventForm','eventId','eventDate',
-    'eventTime','eventTitle','eventPlace','eventCategory','eventNotes','saveEventBtn','deleteEventBtn','posterModal','posterCanvas',
-    'downloadPosterBtn','printPosterBtn','regeneratePosterBtn','toast'
+    'eventTime','eventTitle','eventPlace','eventCategory','eventNotes','saveEventBtn','deleteEventBtn','toast'
   ].forEach(id => el[id] = document.getElementById(id));
 }
 
@@ -85,10 +78,6 @@ function bindEvents() {
     setTimeout(() => el.adminIdInput.focus(), 60);
   });
   el.logoutBtn.addEventListener('click', logoutAdmin);
-  el.posterBtn.addEventListener('click', generateMonthlyPoster);
-  el.regeneratePosterBtn.addEventListener('click', generateMonthlyPoster);
-  el.downloadPosterBtn.addEventListener('click', downloadPoster);
-  el.printPosterBtn.addEventListener('click', printPoster);
   el.loginForm.addEventListener('submit', handleLogin);
   el.eventForm.addEventListener('submit', saveEvent);
   el.deleteEventBtn.addEventListener('click', deleteEvent);
@@ -126,8 +115,6 @@ function setAdminUi(active) {
   el.adminBadge.classList.toggle('hidden', !active);
   el.logoutBtn.classList.toggle('hidden', !active);
   el.adminBtn.textContent = active ? '✅ Mod Admin Aktif' : '🔐 Sunting Takwim';
-  el.posterBtn.disabled = !active;
-  el.posterBtn.title = active ? 'Jana poster program bulan dipilih' : 'Log masuk admin untuk menjana poster AI';
   renderCalendar();
 }
 
@@ -414,223 +401,17 @@ async function deleteEvent() {
   } finally { setLoading(false); }
 }
 
-async function generateMonthlyPoster() {
-  if (!state.isAdmin) {
-    openModal('login');
-    return showToast('Log masuk admin diperlukan untuk menjana poster AI.', 'error');
-  }
-  const monthEvents = state.events.filter(e => dateParts(e.date).month === state.month + 1);
-  if (!monthEvents.length) return showToast('Tiada program direkodkan untuk bulan ini. Poster tidak dapat dijana.', 'error');
-  if (!isApiConfigured()) return showToast('Masukkan URL Apps Script dalam app.js terlebih dahulu.', 'error');
-
-  setLoading(true, `AI sedang menyediakan ilustrasi ${MONTHS[state.month]}...`);
-  try {
-    const result = await postApi({ action: 'generatePoster', token: state.token, month: state.month + 1, year: CONFIG.YEAR });
-    if (!result.success) throw new Error(result.message || 'Gagal menjana poster AI.');
-    state.posterEvents = normalizeEvents(result.events || monthEvents);
-    await drawPoster({
-      illustrationBase64: result.illustrationBase64 || '',
-      illustrationMimeType: result.illustrationMimeType || 'image/jpeg',
-      logoBase64: result.logoBase64 || '',
-      logoMimeType: result.logoMimeType || 'image/png',
-      prompt: result.prompt || ''
-    });
-    openModal('poster');
-    showToast('Poster AI berjaya dijana.', 'success');
-  } catch (err) {
-    console.error(err);
-    showToast(err.message || 'Gagal menjana poster AI. Sila cuba lagi.', 'error');
-  } finally { setLoading(false); }
-}
-
-async function drawPoster(ai) {
-  const canvas = el.posterCanvas;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  ctx.clearRect(0, 0, W, H);
-
-  // Background
-  const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0, '#F7FBFF'); bg.addColorStop(1, '#E7F2FA');
-  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
-
-  // Header band
-  const headerGrad = ctx.createLinearGradient(0,0,W,0);
-  headerGrad.addColorStop(0, '#0A395F'); headerGrad.addColorStop(.6, '#0E6AA9'); headerGrad.addColorStop(1, '#1591C9');
-  ctx.fillStyle = headerGrad; roundRect(ctx, 55, 48, W-110, 235, 38); ctx.fill();
-
-  let logoImg = null;
-  try {
-    if (ai.logoBase64) logoImg = await loadImage(`data:${ai.logoMimeType};base64,${ai.logoBase64}`);
-    else logoImg = await loadImage(CONFIG.SCHOOL_LOGO_URL, true);
-  } catch (_) {}
-  if (logoImg) drawImageContain(ctx, logoImg, 88, 74, 150, 150);
-
-  ctx.fillStyle = '#FFFFFF'; ctx.textBaseline = 'top';
-  ctx.font = '800 31px Inter, sans-serif';
-  ctx.fillText(CONFIG.SCHOOL_NAME, 265, 85);
-  ctx.font = '800 57px Nunito, Inter, sans-serif';
-  ctx.fillText(`PROGRAM BULAN ${MONTHS[state.month].toUpperCase()} ${CONFIG.YEAR}`, 265, 128);
-  ctx.font = '600 25px Inter, sans-serif'; ctx.globalAlpha = .88;
-  ctx.fillText('Hebahan Aktiviti dan Program Sekolah', 267, 205); ctx.globalAlpha = 1;
-
-  // AI illustration
-  const heroX = 55, heroY = 312, heroW = W - 110, heroH = 455;
-  ctx.save(); roundRect(ctx, heroX, heroY, heroW, heroH, 34); ctx.clip();
-  ctx.fillStyle = '#DDEAF3'; ctx.fillRect(heroX,heroY,heroW,heroH);
-  if (ai.illustrationBase64) {
-    try {
-      const img = await loadImage(`data:${ai.illustrationMimeType};base64,${ai.illustrationBase64}`);
-      drawImageCover(ctx, img, heroX, heroY, heroW, heroH);
-    } catch (_) {}
-  }
-  const overlay = ctx.createLinearGradient(0, heroY, 0, heroY+heroH);
-  overlay.addColorStop(0, 'rgba(7,39,64,0.02)'); overlay.addColorStop(1, 'rgba(7,39,64,0.24)');
-  ctx.fillStyle = overlay; ctx.fillRect(heroX,heroY,heroW,heroH);
-  ctx.restore();
-
-  const events = state.posterEvents.length ? state.posterEvents : state.events.filter(e => dateParts(e.date).month === state.month+1);
-  const areaX = 55, areaY = 805, areaW = W-110, areaH = 1025;
-  ctx.fillStyle = '#FFFFFF'; roundRect(ctx, areaX, areaY, areaW, areaH, 34); ctx.fill();
-  ctx.strokeStyle = '#D9E5EE'; ctx.lineWidth = 2; ctx.stroke();
-
-  ctx.fillStyle = '#153D5B'; ctx.font = '800 30px Inter, sans-serif';
-  ctx.fillText(`📅  ${events.length} Program Bulan ${MONTHS[state.month]}`, areaX+34, areaY+28);
-  ctx.strokeStyle = '#E2EAF0'; ctx.beginPath(); ctx.moveTo(areaX+34, areaY+78); ctx.lineTo(areaX+areaW-34, areaY+78); ctx.stroke();
-
-  const n = events.length;
-  const cols = n <= 8 ? 1 : (n <= 18 ? 2 : 3);
-  const gapX = 18, gapY = 13, innerX = areaX+30, innerY = areaY+102;
-  const contentW = areaW-60, contentH = areaH-132;
-  const rows = Math.ceil(n/cols);
-  const colW = (contentW - gapX*(cols-1))/cols;
-  const cardH = Math.max(72, Math.min(cols === 1 ? 123 : 112, (contentH-gapY*(rows-1))/Math.max(rows,1)));
-
-  events.forEach((event, i) => {
-    const col = i % cols, row = Math.floor(i/cols);
-    const x = innerX + col*(colW+gapX), y = innerY + row*(cardH+gapY);
-    drawEventCard(ctx, event, x, y, colW, cardH, cols);
-  });
-
-  // Footer
-  ctx.fillStyle = '#153D5B'; ctx.font = '700 22px Inter, sans-serif';
-  ctx.fillText('Sumber: Takwim Sekolah 2027', 60, 1884);
-  ctx.textAlign = 'right'; ctx.fillStyle = '#607487'; ctx.font = '500 19px Inter, sans-serif';
-  ctx.fillText('Poster dijana daripada data takwim semasa', W-60, 1887); ctx.textAlign = 'left';
-
-  state.posterDataUrl = canvas.toDataURL('image/png', 1.0);
-}
-
-function drawEventCard(ctx, event, x, y, w, h, cols) {
-  const color = POSTER_COLORS[event.category] || POSTER_COLORS['Lain-lain'];
-  ctx.fillStyle = '#F7FAFC'; roundRect(ctx,x,y,w,h,18); ctx.fill();
-  ctx.strokeStyle = '#E3EBF1'; ctx.lineWidth = 1.5; ctx.stroke();
-  ctx.fillStyle = color; roundRect(ctx,x,y,8,h,8); ctx.fill();
-
-  const p = dateParts(event.date);
-  const dateBox = cols === 1 ? 76 : 62;
-  ctx.fillStyle = color; roundRect(ctx,x+20,y+14,dateBox,h-28,14); ctx.fill();
-  ctx.fillStyle = '#FFF'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.font = `800 ${cols === 1 ? 30 : 25}px Inter, sans-serif`;
-  ctx.fillText(String(p.day).padStart(2,'0'), x+20+dateBox/2, y+h/2-10);
-  ctx.font = `700 ${cols === 1 ? 14 : 12}px Inter, sans-serif`;
-  ctx.fillText(MONTHS[p.month-1].slice(0,3).toUpperCase(), x+20+dateBox/2, y+h/2+18);
-  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-
-  const textX = x+20+dateBox+18, textW = w-(textX-x)-18;
-  const titleFont = cols === 1 ? 23 : (cols === 2 ? 18 : 15);
-  ctx.fillStyle = '#183B55'; ctx.font = `800 ${titleFont}px Inter, sans-serif`;
-  drawWrappedText(ctx, event.title, textX, y+15, textW, titleFont+5, cols === 1 ? 2 : 2);
-
-  const metaSize = cols === 1 ? 16 : (cols === 2 ? 14 : 12);
-  const metaY = y+h-34;
-  ctx.font = `600 ${metaSize}px Inter, sans-serif`; ctx.fillStyle = '#65798B';
-  let meta = '';
-  if (event.time) meta += `⏱ ${event.time}`;
-  if (event.place) meta += `${meta ? '   •   ' : ''}📍 ${event.place}`;
-  if (!meta) meta = event.category;
-  drawEllipsisText(ctx, meta, textX, metaY, textW);
-}
-
 function dateParts(date) {
   const [year,month,day] = String(date).split('-').map(Number);
   return { year, month, day };
 }
 
-function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
-  const words = String(text || '').split(/\s+/);
-  let line = '', lines = [];
-  for (const word of words) {
-    const test = line ? `${line} ${word}` : word;
-    if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = word; }
-    else line = test;
-  }
-  if (line) lines.push(line);
-  if (lines.length > maxLines) {
-    lines = lines.slice(0,maxLines);
-    let last = lines[maxLines-1];
-    while (ctx.measureText(last+'…').width > maxWidth && last.length > 2) last = last.slice(0,-1);
-    lines[maxLines-1] = last.trim()+'…';
-  }
-  lines.forEach((ln,i) => ctx.fillText(ln,x,y+i*lineHeight));
-}
-
-function drawEllipsisText(ctx, text, x, y, maxWidth) {
-  let s = String(text || '');
-  if (ctx.measureText(s).width <= maxWidth) return ctx.fillText(s,x,y);
-  while (s.length > 3 && ctx.measureText(s+'…').width > maxWidth) s = s.slice(0,-1);
-  ctx.fillText(s.trim()+'…',x,y);
-}
-
-function roundRect(ctx,x,y,w,h,r) {
-  const rr = Math.min(r,w/2,h/2);
-  ctx.beginPath();
-  ctx.moveTo(x+rr,y); ctx.arcTo(x+w,y,x+w,y+h,rr); ctx.arcTo(x+w,y+h,x,y+h,rr);
-  ctx.arcTo(x,y+h,x,y,rr); ctx.arcTo(x,y,x+w,y,rr); ctx.closePath();
-}
-
-function drawImageCover(ctx,img,x,y,w,h) {
-  const s = Math.max(w/img.width,h/img.height), sw = w/s, sh = h/s;
-  const sx=(img.width-sw)/2, sy=(img.height-sh)/2;
-  ctx.drawImage(img,sx,sy,sw,sh,x,y,w,h);
-}
-function drawImageContain(ctx,img,x,y,w,h) {
-  const s=Math.min(w/img.width,h/img.height), dw=img.width*s, dh=img.height*s;
-  ctx.drawImage(img,x+(w-dw)/2,y+(h-dh)/2,dw,dh);
-}
-function loadImage(src, crossOrigin=false) {
-  return new Promise((resolve,reject) => {
-    const img = new Image();
-    if (crossOrigin) img.crossOrigin = 'anonymous';
-    img.onload = () => resolve(img); img.onerror = reject; img.src = src;
-  });
-}
-
-function downloadPoster() {
-  if (!state.posterDataUrl) return;
-  const a = document.createElement('a');
-  a.href = state.posterDataUrl;
-  a.download = `Poster-${MONTHS[state.month]}-${CONFIG.YEAR}.png`;
-  document.body.appendChild(a); a.click(); a.remove();
-}
-
-function printPoster() {
-  if (!state.posterDataUrl) return;
-  const w = window.open('', '_blank');
-  if (!w) return showToast('Popup disekat oleh browser. Benarkan popup untuk mencetak poster.', 'error');
-  w.document.write(`<!doctype html><html><head><title>Poster ${MONTHS[state.month]} ${CONFIG.YEAR}</title>
-    <style>@page{size:A4 portrait;margin:0}html,body{margin:0;padding:0;background:white}img{display:block;width:100%;height:auto;max-height:100vh;object-fit:contain}</style>
-    </head><body><img src="${state.posterDataUrl}"></body></html>`);
-  w.document.close();
-  w.onload = () => { w.focus(); w.print(); };
-}
-
 function openModal(name) {
-  const map = { login: el.loginModal, event: el.eventModal, poster: el.posterModal };
+  const map = { login: el.loginModal, event: el.eventModal };
   map[name]?.classList.remove('hidden');
 }
 function closeModal(name) {
-  const map = { login: el.loginModal, event: el.eventModal, poster: el.posterModal };
+  const map = { login: el.loginModal, event: el.eventModal };
   map[name]?.classList.add('hidden');
 }
 

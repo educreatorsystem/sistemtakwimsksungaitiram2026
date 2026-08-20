@@ -30,7 +30,6 @@
 
     <div class="header-actions no-print">
       <button id="adminBtn" class="btn btn-light" type="button">🔐 Sunting Takwim</button>
-      <button id="posterBtn" class="btn btn-ai" type="button" title="Log masuk admin untuk menjana poster AI">✨ Jana Poster AI</button>
       <button id="printBtn" class="btn btn-light" type="button">🖨️ Cetak Bulan</button>
       <button id="refreshBtn" class="btn btn-light" type="button">↻ Refresh</button>
       <button id="logoutBtn" class="btn btn-danger hidden" type="button">Log Keluar</button>
@@ -127,28 +126,6 @@
     </div>
   </div>
 
-  <!-- Poster -->
-  <div id="posterModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="posterModalTitle">
-    <div class="modal-backdrop" data-close="poster"></div>
-    <div class="modal-panel poster-panel">
-      <button class="modal-close" type="button" data-close="poster" aria-label="Tutup">×</button>
-      <div class="poster-modal-head">
-        <div>
-          <div class="modal-icon inline">✨</div>
-          <h3 id="posterModalTitle">Poster AI Bulanan</h3>
-          <p class="muted">Ilustrasi dijana AI; teks program dilukis semula oleh sistem supaya kekal tepat.</p>
-        </div>
-        <div class="poster-actions no-print">
-          <button id="downloadPosterBtn" class="btn btn-primary" type="button">⬇ Muat Turun PNG</button>
-          <button id="printPosterBtn" class="btn btn-secondary" type="button">🖨 Cetak Poster</button>
-          <button id="regeneratePosterBtn" class="btn btn-ai" type="button">✨ Jana Semula</button>
-        </div>
-      </div>
-      <div class="poster-preview-wrap">
-        <canvas id="posterCanvas" width="1600" height="2000" aria-label="Preview poster"></canvas>
-      </div>
-    </div>
-  </div>
 
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
