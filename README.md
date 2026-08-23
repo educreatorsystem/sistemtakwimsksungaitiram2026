@@ -98,3 +98,8 @@ Upload fail berikut ke root repository:
 - `app.js`
 
 Folder `backend` tidak diperlukan oleh GitHub Pages. Ia disertakan sebagai salinan Apps Script untuk pemasangan backend.
+
+
+## Mod suntingan admin sahaja
+
+Dalam versi ini, pengguna biasa hanya melihat takwim. Butang **Tambah Program Sekolah**, **Tambah Cuti**, butang **+** pada kotak tarikh, serta kawalan sunting/padam hanya muncul selepas login Admin berjaya. Selepas logout, semua kawalan suntingan disorok semula secara automatik.

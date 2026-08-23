@@ -203,6 +203,7 @@ function setAdminUi(active) {
   state.isAdmin = active;
   el.adminBadge.classList.toggle('hidden', !active);
   el.logoutBtn.classList.toggle('hidden', !active);
+  el.addProgramBtn.classList.toggle('hidden', !active);
   el.addHolidayBtn2.classList.toggle('hidden', !active);
   document.body.classList.toggle('admin-active', active);
   el.adminBtn.textContent = active ? '✅ Mod Admin Aktif' : '🔐 Sunting Takwim';
@@ -447,7 +448,7 @@ function renderCalendar() {
     const dayHolidays = outside ? [] : monthHolidayEvents.filter(e => e.date === dateKey);
     const today = isTodayKey(dateKey);
     const payroll = !outside && monthPayroll && monthPayroll.date === dateKey ? monthPayroll : null;
-    const addButton = !outside ? `<button class="add-day-btn no-print" type="button" data-add-date="${dateKey}" title="Tambah program atau cuti pada tarikh ini" aria-label="Tambah pada ${dateKey}">+</button>` : '';
+    const addButton = (!outside && state.isAdmin) ? `<button class="add-day-btn no-print" type="button" data-add-date="${dateKey}" title="Tambah program atau cuti pada tarikh ini" aria-label="Tambah pada ${dateKey}">+</button>` : '';
 
     const holidayChips = dayHolidays.map(h => {
       const cls = holidayTypeSlug(h.type);
