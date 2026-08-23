@@ -61,3 +61,24 @@ button,select,input,textarea{font:inherit} button{cursor:pointer}.hidden{display
 .payroll-chip small{grid-column:2;font-size:.57rem;opacity:.78;margin-top:2px;display:block;white-space:normal}
 .payroll-icon{grid-row:1/3;align-self:start}
 @media print{.payroll-chip{padding:3px 4px;font-size:5.8pt;transform:none!important;box-shadow:none!important}.payroll-chip strong{font-size:6pt}.payroll-chip small{font-size:5.2pt}}
+
+/* ===== TAMBAH PROGRAM + PILIHAN PANTAS KALENDAR ===== */
+.btn-add-program{background:linear-gradient(135deg,#24b77a,#2e8dde 58%,#675be8);color:#fff;border:1px solid rgba(255,255,255,.28);box-shadow:0 10px 26px rgba(46,141,222,.24)}
+.btn-add-program:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 16px 34px rgba(46,141,222,.31);filter:saturate(1.1)}
+.quick-add-panel{max-width:560px}
+.quick-add-options{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0 12px}
+.quick-add-card{border:1px solid #e0e4f1;border-radius:20px;padding:20px;text-align:left;background:#fff;color:var(--ink);min-height:175px;display:flex;flex-direction:column;align-items:flex-start;gap:7px;box-shadow:0 9px 25px rgba(54,65,125,.08);transition:transform .23s ease,box-shadow .23s ease,border-color .23s ease,background .23s ease;position:relative;overflow:hidden}
+.quick-add-card:after{content:'';position:absolute;inset:auto -35px -45px auto;width:110px;height:110px;border-radius:50%;opacity:.12;transition:transform .3s ease}
+.quick-add-card.program:after{background:#4f75e8}.quick-add-card.holiday:after{background:#ff7b69}
+.quick-add-card:hover{transform:translateY(-5px) scale(1.015);box-shadow:0 17px 36px rgba(54,65,125,.16);border-color:#bfc7ed}
+.quick-add-card:hover:after{transform:scale(1.25)}
+.quick-add-card.program:hover{background:linear-gradient(145deg,#fff,#f2f5ff)}
+.quick-add-card.holiday:hover{background:linear-gradient(145deg,#fff,#fff4ee)}
+.quick-add-icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:1.55rem;background:#f1f3ff;box-shadow:inset 0 0 0 1px rgba(80,90,170,.06)}
+.quick-add-card.holiday .quick-add-icon{background:#fff0e8}
+.quick-add-card strong{font-family:Nunito,Inter,sans-serif;font-size:1.03rem;color:#344175}
+.quick-add-card small{font-size:.75rem;line-height:1.5;color:var(--muted)}
+.add-day-btn{position:relative}
+.add-day-btn:after{content:'';position:absolute;inset:-4px;border:1px solid rgba(95,85,223,.16);border-radius:12px;opacity:0;transition:.2s}
+.add-day-btn:hover:after{opacity:1}
+@media(max-width:600px){.quick-add-options{grid-template-columns:1fr}.quick-add-card{min-height:135px}.btn-add-program{flex-basis:100%!important}}

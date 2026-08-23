@@ -38,10 +38,9 @@
 
     <div class="header-actions no-print">
       <button id="holidayScheduleBtn" class="btn btn-holiday" type="button">📋 Jana Jadual Cuti Bulanan</button>
-      <button id="addHolidayBtn" class="btn btn-add-holiday hidden" type="button">➕ Tambah Cuti</button>
+      <button id="addProgramBtn" class="btn btn-add-program" type="button">➕ Tambah Program Sekolah</button>
       <button id="adminBtn" class="btn btn-light" type="button">🔐 Sunting Takwim</button>
       <button id="printBtn" class="btn btn-light" type="button">🖨️ Cetak Bulan</button>
-      <button id="refreshBtn" class="btn btn-light" type="button">↻ Refresh</button>
       <button id="logoutBtn" class="btn btn-danger hidden" type="button">Log Keluar</button>
     </div>
   </header>
@@ -137,6 +136,32 @@
           <button class="btn btn-secondary" type="button" data-close="login">Batal</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Pilihan Tambah Pada Tarikh -->
+  <div id="quickAddModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="quickAddTitle">
+    <div class="modal-backdrop" data-close="quickAdd"></div>
+    <div class="modal-panel modal-small pop-in quick-add-panel">
+      <button class="modal-close" type="button" data-close="quickAdd" aria-label="Tutup">×</button>
+      <div class="modal-icon">➕</div>
+      <h3 id="quickAddTitle">Tambah Pada Kalendar</h3>
+      <p class="muted">Tarikh dipilih: <strong id="quickAddDateText">—</strong></p>
+      <div class="quick-add-options">
+        <button id="quickAddProgramBtn" class="quick-add-card program" type="button">
+          <span class="quick-add-icon">📅</span>
+          <strong>Tambah Program</strong>
+          <small>Mesyuarat, aktiviti, program akademik, HEM, kokurikulum dan lain-lain.</small>
+        </button>
+        <button id="quickAddHolidayBtn" class="quick-add-card holiday" type="button">
+          <span class="quick-add-icon">🎊</span>
+          <strong>Tambah Cuti</strong>
+          <small>Cuti sekolah, cuti khas, perayaan atau sambutan tambahan.</small>
+        </button>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-secondary" type="button" data-close="quickAdd">Batal</button>
+      </div>
     </div>
   </div>
 

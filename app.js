@@ -95,7 +95,9 @@ const state = {
   events: [],
   customHolidays: [],
   isAdmin: false,
-  token: sessionStorage.getItem('takwimAdminToken') || ''
+  token: sessionStorage.getItem('takwimAdminToken') || '',
+  quickAddDate: '',
+  pendingAdminAction: null
 };
 
 const el = {};
@@ -115,14 +117,15 @@ async function init() {
 
 function cacheElements() {
   [
-    'loadingOverlay','loadingText','schoolLogo','schoolName','adminBtn','printBtn','refreshBtn','logoutBtn','addHolidayBtn','addHolidayBtn2',
+    'loadingOverlay','loadingText','schoolLogo','schoolName','adminBtn','printBtn','logoutBtn','addProgramBtn','addHolidayBtn2',
     'holidayScheduleBtn','holidayScheduleBtn2','prevMonthBtn','nextMonthBtn','monthSelect','adminBadge','monthTitle','programCount',
     'holidayCount','holidayDayCount','salaryDate','calendarGrid','emptyMonthMessage','holidaySummaryTitle','holidaySummaryStats','holidaySummaryList',
     'loginModal','loginForm','adminIdInput','adminPasswordInput','eventModal','eventModalTitle','eventForm','eventId','eventDate',
     'eventTime','eventTitle','eventPlace','eventCategory','eventNotes','saveEventBtn','deleteEventBtn','holidayModal','holidayModalTitle',
     'holidayModalSubtitle','holidayTableBody','printHolidayBtn','holidayPrintSheet','holidayPrintLogo','holidayPrintSchool',
     'holidayPrintTitle','holidayPrintBody','holidayEditModal','holidayEditForm','holidayEditTitle','holidayEditId','holidayStart','holidayEnd',
-    'holidayTitle','holidayType','holidayScope','holidayIcon','holidayNotes','saveHolidayBtn','deleteHolidayBtn','toast'
+    'holidayTitle','holidayType','holidayScope','holidayIcon','holidayNotes','saveHolidayBtn','deleteHolidayBtn',
+    'quickAddModal','quickAddDateText','quickAddProgramBtn','quickAddHolidayBtn','toast'
   ].forEach(id => el[id] = document.getElementById(id));
 }
 
@@ -143,17 +146,27 @@ function bindEvents() {
   el.prevMonthBtn.addEventListener('click', () => changeMonth(-1));
   el.nextMonthBtn.addEventListener('click', () => changeMonth(1));
   el.monthSelect.addEventListener('change', e => { state.month = Number(e.target.value); renderCalendar(); });
-  el.refreshBtn.addEventListener('click', () => refreshAllData({ preferApi: state.isAdmin }));
   el.printBtn.addEventListener('click', () => window.print());
+  el.addProgramBtn.addEventListener('click', () => requireAdminAction(() => openEventForAdd(defaultAddDate())));
+  el.quickAddProgramBtn.addEventListener('click', () => {
+    const date = state.quickAddDate || defaultAddDate();
+    closeModal('quickAdd');
+    openEventForAdd(date);
+  });
+  el.quickAddHolidayBtn.addEventListener('click', () => {
+    const date = state.quickAddDate || defaultAddDate();
+    closeModal('quickAdd');
+    openHolidayForAdd(date);
+  });
   el.holidayScheduleBtn.addEventListener('click', () => openHolidaySchedule());
   el.holidayScheduleBtn2.addEventListener('click', () => openHolidaySchedule());
   el.printHolidayBtn.addEventListener('click', printHolidaySchedule);
-  el.addHolidayBtn.addEventListener('click', () => openHolidayForAdd());
-  el.addHolidayBtn2.addEventListener('click', () => openHolidayForAdd());
+  el.addHolidayBtn2.addEventListener('click', () => requireAdminAction(() => openHolidayForAdd()));
   el.holidayEditForm.addEventListener('submit', saveHoliday);
   el.deleteHolidayBtn.addEventListener('click', deleteHoliday);
   el.adminBtn.addEventListener('click', () => {
     if (state.isAdmin) return showToast('Mod admin sudah aktif.', 'success');
+    state.pendingAdminAction = null;
     openModal('login');
     setTimeout(() => el.adminIdInput.focus(), 60);
   });
@@ -162,7 +175,10 @@ function bindEvents() {
   el.eventForm.addEventListener('submit', saveEvent);
   el.deleteEventBtn.addEventListener('click', deleteEvent);
 
-  document.querySelectorAll('[data-close]').forEach(node => node.addEventListener('click', () => closeModal(node.dataset.close)));
+  document.querySelectorAll('[data-close]').forEach(node => node.addEventListener('click', () => {
+    if (node.dataset.close === 'login' && !state.isAdmin) state.pendingAdminAction = null;
+    closeModal(node.dataset.close);
+  }));
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') document.querySelectorAll('.modal:not(.hidden)').forEach(m => m.classList.add('hidden'));
   });
@@ -187,7 +203,6 @@ function setAdminUi(active) {
   state.isAdmin = active;
   el.adminBadge.classList.toggle('hidden', !active);
   el.logoutBtn.classList.toggle('hidden', !active);
-  el.addHolidayBtn.classList.toggle('hidden', !active);
   el.addHolidayBtn2.classList.toggle('hidden', !active);
   document.body.classList.toggle('admin-active', active);
   el.adminBtn.textContent = active ? '✅ Mod Admin Aktif' : '🔐 Sunting Takwim';
@@ -208,6 +223,9 @@ async function handleLogin(e) {
     setAdminUi(true);
     showToast('Log masuk admin berjaya.', 'success');
     await refreshAllData({ preferApi: true });
+    const pending = state.pendingAdminAction;
+    state.pendingAdminAction = null;
+    if (typeof pending === 'function') setTimeout(pending, 80);
   } catch (err) { showToast(err.message || 'Log masuk gagal.', 'error'); }
   finally { setLoading(false); }
 }
@@ -327,7 +345,7 @@ async function loadFromCsv() {
 
 async function loadFromApi() {
   const url = new URL(CONFIG.APPS_SCRIPT_URL);
-  url.searchParams.set('action', 'list');
+  url.searchParams.set('action', 'listPrograms');
   url.searchParams.set('_', String(Date.now()));
   const res = await fetch(url.toString(), { cache: 'no-store' });
   const data = safeJson(await res.text());
@@ -429,7 +447,7 @@ function renderCalendar() {
     const dayHolidays = outside ? [] : monthHolidayEvents.filter(e => e.date === dateKey);
     const today = isTodayKey(dateKey);
     const payroll = !outside && monthPayroll && monthPayroll.date === dateKey ? monthPayroll : null;
-    const addButton = state.isAdmin && !outside ? `<button class="add-day-btn no-print" type="button" data-add-date="${dateKey}" title="Tambah program">+</button>` : '';
+    const addButton = !outside ? `<button class="add-day-btn no-print" type="button" data-add-date="${dateKey}" title="Tambah program atau cuti pada tarikh ini" aria-label="Tambah pada ${dateKey}">+</button>` : '';
 
     const holidayChips = dayHolidays.map(h => {
       const cls = holidayTypeSlug(h.type);
@@ -458,7 +476,7 @@ function renderCalendar() {
   }
 
   el.calendarGrid.innerHTML = cells.join('');
-  el.calendarGrid.querySelectorAll('[data-add-date]').forEach(btn => btn.addEventListener('click', () => openEventForAdd(btn.dataset.addDate)));
+  el.calendarGrid.querySelectorAll('[data-add-date]').forEach(btn => btn.addEventListener('click', () => openQuickAdd(btn.dataset.addDate)));
   el.calendarGrid.querySelectorAll('[data-event-id]').forEach(btn => btn.addEventListener('click', () => openEventById(btn.dataset.eventId)));
   el.calendarGrid.querySelectorAll('[data-holiday-id]').forEach(btn => btn.addEventListener('click', () => handleHolidayClick(btn.dataset.holidayId)));
   renderHolidaySummary();
@@ -600,6 +618,35 @@ function formatPeriodDay(p) {
 
 
 
+function defaultAddDate() {
+  const now = new Date();
+  if (now.getFullYear() === CONFIG.YEAR && now.getMonth() === state.month) {
+    return `${CONFIG.YEAR}-${String(state.month + 1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  }
+  return `${CONFIG.YEAR}-${String(state.month + 1).padStart(2,'0')}-01`;
+}
+
+function formatQuickAddDate(date) {
+  const p = dateParts(date);
+  const d = localDate(date);
+  return `${DAYS[d.getDay()]}, ${p.day} ${MONTHS[p.month - 1]} ${p.year}`;
+}
+
+function requireAdminAction(callback) {
+  if (state.isAdmin) return callback();
+  state.pendingAdminAction = callback;
+  openModal('login');
+  setTimeout(() => el.adminIdInput.focus(), 60);
+  showToast('Sila log masuk sebagai admin untuk menambah data.', 'error');
+}
+
+function openQuickAdd(date) {
+  if (!state.isAdmin) return requireAdminAction(() => openQuickAdd(date));
+  state.quickAddDate = date || defaultAddDate();
+  el.quickAddDateText.textContent = formatQuickAddDate(state.quickAddDate);
+  openModal('quickAdd');
+}
+
 function handleHolidayClick(id) {
   const holiday = findHolidayById(id);
   if (state.isAdmin && holiday && holiday.editable) return openHolidayForEdit(id);
@@ -716,15 +763,15 @@ function setEventFormReadOnly(readOnly) { [el.eventDate,el.eventTime,el.eventTit
 async function saveEvent(e) {
   e.preventDefault(); if (!state.isAdmin) return;
   const payload = {
-    action: el.eventId.value ? 'update' : 'add', token: state.token, id: el.eventId.value,
+    action: el.eventId.value ? 'updateProgram' : 'addProgram', token: state.token, id: el.eventId.value,
     date: el.eventDate.value, title: el.eventTitle.value.trim(), time: el.eventTime.value.trim(),
     place: el.eventPlace.value.trim(), category: el.eventCategory.value, notes: el.eventNotes.value.trim()
   };
   if (!payload.title || !payload.date) return showToast('Tarikh dan nama program diperlukan.', 'error');
-  setLoading(true, payload.action === 'add' ? 'Menyimpan program...' : 'Mengemas kini program...');
+  setLoading(true, payload.action === 'addProgram' ? 'Menyimpan program...' : 'Mengemas kini program...');
   try {
     const result = await postApi(payload); if (!result.success) throw new Error(result.message || 'Operasi gagal.');
-    closeModal('event'); showToast(payload.action === 'add' ? 'Program berjaya ditambah.' : 'Program berjaya dikemas kini.', 'success');
+    closeModal('event'); showToast(payload.action === 'addProgram' ? 'Program berjaya ditambah.' : 'Program berjaya dikemas kini.', 'success');
     await loadEvents({ preferApi: true });
   } catch (err) {
     if (/token|sesi|session/i.test(err.message)) logoutAdmin();
@@ -737,7 +784,7 @@ async function deleteEvent() {
   if (!confirm('Adakah anda pasti mahu memadam program ini?')) return;
   setLoading(true, 'Memadam program...');
   try {
-    const result = await postApi({ action: 'delete', token: state.token, id: el.eventId.value });
+    const result = await postApi({ action: 'deleteProgram', token: state.token, id: el.eventId.value });
     if (!result.success) throw new Error(result.message || 'Gagal memadam program.');
     closeModal('event'); showToast('Program berjaya dipadam.', 'success'); await loadEvents({ preferApi: true });
   } catch (err) { showToast(err.message || 'Gagal memadam program.', 'error'); }
@@ -745,8 +792,8 @@ async function deleteEvent() {
 }
 
 function dateParts(date) { const [year,month,day] = String(date).split('-').map(Number); return { year, month, day }; }
-function openModal(name) { ({ login: el.loginModal, event: el.eventModal, holiday: el.holidayModal, holidayEdit: el.holidayEditModal })[name]?.classList.remove('hidden'); }
-function closeModal(name) { ({ login: el.loginModal, event: el.eventModal, holiday: el.holidayModal, holidayEdit: el.holidayEditModal })[name]?.classList.add('hidden'); }
+function openModal(name) { ({ login: el.loginModal, event: el.eventModal, holiday: el.holidayModal, holidayEdit: el.holidayEditModal, quickAdd: el.quickAddModal })[name]?.classList.remove('hidden'); }
+function closeModal(name) { ({ login: el.loginModal, event: el.eventModal, holiday: el.holidayModal, holidayEdit: el.holidayEditModal, quickAdd: el.quickAddModal })[name]?.classList.add('hidden'); }
 
 async function postApi(payload) {
   if (!isApiConfigured()) throw new Error('URL Apps Script belum dikonfigurasi.');
