@@ -3,14 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0f4c81" />
-  <title>Takwim Sekolah 2027</title>
+  <meta name="theme-color" content="#5b4ee8" />
+  <title>Takwim Sekolah 2026</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="page-orb orb-one" aria-hidden="true"></div>
+  <div class="page-orb orb-two" aria-hidden="true"></div>
+  <div class="page-orb orb-three" aria-hidden="true"></div>
+
   <div id="loadingOverlay" class="loading-overlay hidden" aria-live="polite">
     <div class="loading-card">
       <div class="spinner"></div>
@@ -19,16 +23,21 @@
   </div>
 
   <header class="site-header print-header">
+    <div class="header-decoration dec-a" aria-hidden="true">✦</div>
+    <div class="header-decoration dec-b" aria-hidden="true">●</div>
     <div class="brand-wrap">
-      <img id="schoolLogo" class="school-logo" alt="Lencana sekolah" />
+      <div class="logo-halo">
+        <img id="schoolLogo" class="school-logo" alt="Lencana sekolah" />
+      </div>
       <div class="brand-copy">
         <div id="schoolName" class="school-name"></div>
-        <h1>TAKWIM SEKOLAH 2027</h1>
-        <p>Pengurusan Program dan Aktiviti Sekolah</p>
+        <h1>TAKWIM SEKOLAH 2026</h1>
+        <p>Pengurusan Program, Cuti & Perayaan Sekolah</p>
       </div>
     </div>
 
     <div class="header-actions no-print">
+      <button id="holidayScheduleBtn" class="btn btn-holiday" type="button">📋 Jana Jadual Cuti Bulanan</button>
       <button id="adminBtn" class="btn btn-light" type="button">🔐 Sunting Takwim</button>
       <button id="printBtn" class="btn btn-light" type="button">🖨️ Cetak Bulan</button>
       <button id="refreshBtn" class="btn btn-light" type="button">↻ Refresh</button>
@@ -37,6 +46,14 @@
   </header>
 
   <main class="app-shell">
+    <section class="welcome-strip no-print">
+      <div class="welcome-icon">🌈</div>
+      <div>
+        <strong>Takwim Pintar 2026</strong>
+        <span>Program sekolah digabungkan dengan cuti, perayaan dan sambutan berdasarkan Kalendar Kuda 2026 yang dibekalkan.</span>
+      </div>
+    </section>
+
     <section class="toolbar no-print" aria-label="Navigasi bulan">
       <button id="prevMonthBtn" class="icon-btn" type="button" aria-label="Bulan sebelumnya">←</button>
       <div class="month-center">
@@ -50,11 +67,13 @@
     <section class="calendar-card" id="calendarPrintArea">
       <div class="calendar-heading">
         <div>
-          <div class="eyebrow">TAKWIM BULANAN</div>
-          <h2 id="monthTitle">JANUARI 2027</h2>
+          <div class="eyebrow">TAKWIM BULANAN • 2026</div>
+          <h2 id="monthTitle">JANUARI 2026</h2>
         </div>
-        <div class="month-summary">
-          <span id="programCount">0 program</span>
+        <div class="stat-pills">
+          <div class="stat-pill stat-program"><span id="programCount">0</span><small>Program</small></div>
+          <div class="stat-pill stat-holiday"><span id="holidayCount">0</span><small>Cuti / Perayaan</small></div>
+          <div class="stat-pill stat-off"><span id="holidayDayCount">0</span><small>Tarikh Cuti*</small></div>
         </div>
       </div>
 
@@ -64,8 +83,12 @@
         <span><i class="dot cat-hem"></i>HEM</span>
         <span><i class="dot cat-kokurikulum"></i>Kokurikulum</span>
         <span><i class="dot cat-sukan"></i>Sukan</span>
-        <span><i class="dot cat-cuti"></i>Cuti</span>
-        <span><i class="dot cat-lain-lain"></i>Lain-lain</span>
+        <span><i class="dot cat-cuti"></i>Program Cuti</span>
+        <span class="legend-separator"></span>
+        <span><i class="dot holiday-public"></i>Cuti Umum</span>
+        <span><i class="dot holiday-state"></i>Cuti Negeri</span>
+        <span><i class="dot holiday-school"></i>Cuti Sekolah</span>
+        <span><i class="dot holiday-festival"></i>Perayaan / Sambutan</span>
       </div>
 
       <div class="calendar-scroll">
@@ -75,14 +98,27 @@
         <div id="calendarGrid" class="calendar-grid days"></div>
       </div>
 
-      <div id="emptyMonthMessage" class="empty-message hidden">Tiada program direkodkan untuk bulan ini.</div>
+      <div id="emptyMonthMessage" class="empty-message hidden">Tiada program sekolah direkodkan untuk bulan ini. Cuti dan perayaan rujukan masih dipaparkan.</div>
+    </section>
+
+    <section class="holiday-summary-card" id="holidaySummarySection">
+      <div class="holiday-summary-head">
+        <div>
+          <div class="eyebrow holiday-eyebrow">RINGKASAN CUTI BULAN INI</div>
+          <h3 id="holidaySummaryTitle">Ringkasan Januari 2026</h3>
+          <p>Rujukan: Kalendar Kuda 2026 yang dibekalkan. Cuti negeri ditandakan mengikut negeri/wilayah.</p>
+        </div>
+        <button id="holidayScheduleBtn2" class="btn btn-holiday no-print" type="button">📋 Lihat Jadual Penuh</button>
+      </div>
+      <div id="holidaySummaryStats" class="holiday-summary-stats"></div>
+      <div id="holidaySummaryList" class="holiday-summary-list"></div>
     </section>
   </main>
 
   <!-- Login Admin -->
   <div id="loginModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
     <div class="modal-backdrop" data-close="login"></div>
-    <div class="modal-panel modal-small">
+    <div class="modal-panel modal-small pop-in">
       <button class="modal-close" type="button" data-close="login" aria-label="Tutup">×</button>
       <div class="modal-icon">🔐</div>
       <h3 id="loginTitle">Log Masuk Admin</h3>
@@ -101,13 +137,13 @@
   <!-- Program -->
   <div id="eventModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="eventModalTitle">
     <div class="modal-backdrop" data-close="event"></div>
-    <div class="modal-panel">
+    <div class="modal-panel pop-in">
       <button class="modal-close" type="button" data-close="event" aria-label="Tutup">×</button>
       <div class="modal-icon">📅</div>
       <h3 id="eventModalTitle">Maklumat Program</h3>
       <form id="eventForm" class="form-grid">
         <input id="eventId" type="hidden" />
-        <label>Tarikh<input id="eventDate" type="date" min="2027-01-01" max="2027-12-31" required /></label>
+        <label>Tarikh<input id="eventDate" type="date" min="2026-01-01" max="2026-12-31" required /></label>
         <label>Masa<input id="eventTime" placeholder="Contoh: 8.00 pagi" /></label>
         <label class="full">Nama Program<input id="eventTitle" required maxlength="180" placeholder="Nama program / aktiviti" /></label>
         <label class="full">Tempat<input id="eventPlace" maxlength="180" placeholder="Tempat program" /></label>
@@ -126,9 +162,46 @@
     </div>
   </div>
 
+  <!-- Jadual Cuti -->
+  <div id="holidayModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="holidayModalTitle">
+    <div class="modal-backdrop" data-close="holiday"></div>
+    <div class="modal-panel holiday-modal-panel pop-in">
+      <button class="modal-close" type="button" data-close="holiday" aria-label="Tutup">×</button>
+      <div class="holiday-modal-title-row">
+        <div>
+          <div class="modal-icon">🎉</div>
+          <h3 id="holidayModalTitle">Jadual Cuti Bulanan</h3>
+          <p id="holidayModalSubtitle" class="muted"></p>
+        </div>
+        <div class="holiday-modal-actions no-print">
+          <button id="downloadHolidayBtn" class="btn btn-secondary" type="button">⬇️ Muat Turun CSV</button>
+          <button id="printHolidayBtn" class="btn btn-primary" type="button">🖨️ Cetak Jadual</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="holiday-table">
+          <thead><tr><th>Tarikh</th><th>Hari</th><th>Cuti / Perayaan</th><th>Jenis</th><th>Skop</th></tr></thead>
+          <tbody id="holidayTableBody"></tbody>
+        </table>
+      </div>
+      <p class="holiday-disclaimer">* Senarai ini ditranskripsikan daripada Kalendar Kuda 2026 yang dibekalkan. Label “Cuti Negeri” tidak semestinya terpakai di Johor.</p>
+    </div>
+  </div>
+
+  <!-- Lembaran khas untuk cetak jadual cuti -->
+  <section id="holidayPrintSheet" class="holiday-print-sheet" aria-hidden="true">
+    <div class="holiday-print-header">
+      <img id="holidayPrintLogo" alt="Lencana sekolah" />
+      <div><div id="holidayPrintSchool" class="holiday-print-school"></div><h2 id="holidayPrintTitle"></h2><p>Jadual Cuti, Perayaan & Sambutan • Rujukan Kalendar Kuda 2026</p></div>
+    </div>
+    <table class="holiday-table holiday-table-print">
+      <thead><tr><th>Tarikh</th><th>Hari</th><th>Cuti / Perayaan</th><th>Jenis</th><th>Skop</th></tr></thead>
+      <tbody id="holidayPrintBody"></tbody>
+    </table>
+    <p class="holiday-disclaimer">* Cuti negeri tertakluk kepada negeri/wilayah yang dinyatakan.</p>
+  </section>
 
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
-
   <script src="app.js" defer></script>
 </body>
 </html>
