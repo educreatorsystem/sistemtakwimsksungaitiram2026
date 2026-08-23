@@ -103,3 +103,11 @@ Folder `backend` tidak diperlukan oleh GitHub Pages. Ia disertakan sebagai salin
 ## Mod suntingan admin sahaja
 
 Dalam versi ini, pengguna biasa hanya melihat takwim. Butang **Tambah Program Sekolah**, **Tambah Cuti**, butang **+** pada kotak tarikh, serta kawalan sunting/padam hanya muncul selepas login Admin berjaya. Selepas logout, semua kawalan suntingan disorok semula secara automatik.
+
+## Kemas kini: Popup Ringkasan Bulanan
+Butang **Jana Ringkasan Bulanan** kini membuka 3 pilihan:
+1. Ringkasan Cuti Sahaja
+2. Ringkasan Program Sahaja
+3. Ringkasan Cuti + Program
+
+Ringkasan menggunakan bulan yang sedang dipilih dan boleh dicetak terus. Perubahan ini hanya melibatkan frontend; Apps Script program + cuti yang sedia ada tidak perlu diubah.

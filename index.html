@@ -37,7 +37,7 @@
     </div>
 
     <div class="header-actions no-print">
-      <button id="holidayScheduleBtn" class="btn btn-holiday" type="button">📋 Jana Jadual Cuti Bulanan</button>
+      <button id="holidayScheduleBtn" class="btn btn-holiday" type="button">📋 Jana Ringkasan Bulanan</button>
       <button id="addProgramBtn" class="btn btn-add-program hidden" type="button">➕ Tambah Program Sekolah</button>
       <button id="adminBtn" class="btn btn-light" type="button">🔐 Sunting Takwim</button>
       <button id="printBtn" class="btn btn-light" type="button">🖨️ Cetak Bulan</button>
@@ -112,13 +112,75 @@
         </div>
         <div class="summary-actions no-print">
           <button id="addHolidayBtn2" class="btn btn-add-holiday hidden" type="button">➕ Tambah Cuti</button>
-          <button id="holidayScheduleBtn2" class="btn btn-holiday" type="button">📋 Lihat Jadual Penuh</button>
+          <button id="holidayScheduleBtn2" class="btn btn-holiday" type="button">📋 Jana Ringkasan</button>
         </div>
       </div>
       <div id="holidaySummaryStats" class="holiday-summary-stats"></div>
       <div id="holidaySummaryList" class="holiday-summary-list"></div>
     </section>
   </main>
+
+
+  <!-- Pilihan Ringkasan Bulanan -->
+  <div id="summaryChoiceModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="summaryChoiceTitle">
+    <div class="modal-backdrop" data-close="summaryChoice"></div>
+    <div class="modal-panel modal-small pop-in summary-choice-panel">
+      <button class="modal-close" type="button" data-close="summaryChoice" aria-label="Tutup">×</button>
+      <div class="modal-icon">📋</div>
+      <h3 id="summaryChoiceTitle">Jana Ringkasan Bulanan</h3>
+      <p class="muted">Pilih jenis ringkasan untuk <strong id="summaryChoiceMonth">bulan semasa</strong>.</p>
+      <div class="summary-choice-options">
+        <button id="summaryHolidayOnlyBtn" class="summary-choice-card holiday" type="button">
+          <span>🎉</span><strong>Ringkasan Cuti Sahaja</strong><small>Cuti umum, cuti Johor, cuti sekolah, perayaan dan sambutan.</small>
+        </button>
+        <button id="summaryProgramOnlyBtn" class="summary-choice-card program" type="button">
+          <span>📅</span><strong>Ringkasan Program Sahaja</strong><small>Semua program sekolah yang direkodkan bagi bulan dipilih.</small>
+        </button>
+        <button id="summaryCombinedBtn" class="summary-choice-card combined" type="button">
+          <span>🗂️</span><strong>Ringkasan Cuti + Program</strong><small>Gabungkan semua cuti dan program mengikut turutan tarikh.</small>
+        </button>
+      </div>
+      <div class="form-actions"><button class="btn btn-secondary" type="button" data-close="summaryChoice">Batal</button></div>
+    </div>
+  </div>
+
+  <!-- Hasil Ringkasan Bulanan -->
+  <div id="summaryResultModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="summaryResultTitle">
+    <div class="modal-backdrop" data-close="summaryResult"></div>
+    <div class="modal-panel holiday-modal-panel pop-in">
+      <button class="modal-close" type="button" data-close="summaryResult" aria-label="Tutup">×</button>
+      <div class="holiday-modal-title-row">
+        <div>
+          <div class="modal-icon">📊</div>
+          <h3 id="summaryResultTitle">Ringkasan Bulanan</h3>
+          <p id="summaryResultSubtitle" class="muted"></p>
+        </div>
+        <div class="holiday-modal-actions no-print">
+          <button id="printSummaryBtn" class="btn btn-primary" type="button">🖨️ Cetak Ringkasan</button>
+        </div>
+      </div>
+      <div id="summaryResultStats" class="generated-summary-stats"></div>
+      <div class="table-wrap">
+        <table class="holiday-table generated-summary-table">
+          <thead id="summaryResultHead"></thead>
+          <tbody id="summaryResultBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lembaran cetak ringkasan -->
+  <section id="summaryPrintSheet" class="holiday-print-sheet" aria-hidden="true">
+    <div class="holiday-print-header">
+      <img id="summaryPrintLogo" alt="Lencana sekolah" />
+      <div><div id="summaryPrintSchool" class="holiday-print-school"></div><h2 id="summaryPrintTitle"></h2><p id="summaryPrintSubtitle"></p></div>
+    </div>
+    <div id="summaryPrintStats" class="print-summary-stats"></div>
+    <table class="holiday-table holiday-table-print generated-summary-table">
+      <thead id="summaryPrintHead"></thead>
+      <tbody id="summaryPrintBody"></tbody>
+    </table>
+  </section>
 
   <!-- Login Admin -->
   <div id="loginModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="loginTitle">

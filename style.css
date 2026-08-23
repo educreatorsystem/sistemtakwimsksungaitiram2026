@@ -82,3 +82,27 @@ button,select,input,textarea{font:inherit} button{cursor:pointer}.hidden{display
 .add-day-btn:after{content:'';position:absolute;inset:-4px;border:1px solid rgba(95,85,223,.16);border-radius:12px;opacity:0;transition:.2s}
 .add-day-btn:hover:after{opacity:1}
 @media(max-width:600px){.quick-add-options{grid-template-columns:1fr}.quick-add-card{min-height:135px}.btn-add-program{flex-basis:100%!important}}
+
+/* ===== Popup 3 pilihan ringkasan bulanan ===== */
+.summary-choice-panel{width:min(620px,96vw)}
+.summary-choice-options{display:grid;grid-template-columns:1fr;gap:12px;margin:20px 0 8px}
+.summary-choice-card{display:grid;grid-template-columns:52px 1fr;grid-template-rows:auto auto;column-gap:13px;text-align:left;border:1px solid #e2e6f3;border-radius:18px;background:#fff;padding:15px 16px;color:#34445f;box-shadow:0 8px 24px rgba(56,64,115,.07);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease,background .22s ease}
+.summary-choice-card>span{grid-row:1/3;align-self:center;width:48px;height:48px;display:grid;place-items:center;border-radius:15px;font-size:1.55rem}
+.summary-choice-card strong{font-family:Nunito,Inter,sans-serif;font-size:1rem;color:#354275}
+.summary-choice-card small{margin-top:3px;color:#77839a;line-height:1.45}
+.summary-choice-card.holiday>span{background:#fff0df}.summary-choice-card.program>span{background:#eceaff}.summary-choice-card.combined>span{background:#e4f8f1}
+.summary-choice-card:hover{transform:translateY(-3px);box-shadow:0 15px 34px rgba(56,64,115,.14);border-color:#9e98ee;background:#fdfdff}
+.generated-summary-stats{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:10px;margin:18px 0 4px}
+.generated-summary-stats>div,.print-summary-stats>div{border:1px solid #e1e5f2;border-radius:15px;padding:11px 12px;background:linear-gradient(145deg,#fff,#f8f9ff);text-align:center}
+.generated-summary-stats b,.print-summary-stats b{display:block;font-family:Nunito,sans-serif;font-size:1.25rem;color:#5148bd}.generated-summary-stats span,.print-summary-stats span{display:block;margin-top:2px;color:#7a8498;font-size:.72rem;font-weight:800}
+.program-summary-badge,.record-type{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:.68rem;font-weight:900}.program-summary-badge{background:#edf0ff;color:#4a55a8}.record-type.holiday-record{background:#fff0df;color:#b65d2f}.record-type.program-record{background:#eceaff;color:#5047bd}
+.print-summary-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 12px}
+@media(max-width:700px){.generated-summary-stats{grid-template-columns:1fr 1fr}}
+@media print{
+  body.print-summary>*:not(#summaryPrintSheet){display:none!important}
+  body.print-summary #summaryPrintSheet{display:block!important}
+  body.print-summary #summaryPrintSheet .holiday-print-header{display:flex}
+  body.print-summary .print-summary-stats{display:grid!important}
+  body.print-summary .generated-summary-table{min-width:0}
+  body.print-summary .generated-summary-table th,body.print-summary .generated-summary-table td{font-size:7.5pt;padding:6px}
+}

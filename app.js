@@ -125,7 +125,10 @@ function cacheElements() {
     'holidayModalSubtitle','holidayTableBody','printHolidayBtn','holidayPrintSheet','holidayPrintLogo','holidayPrintSchool',
     'holidayPrintTitle','holidayPrintBody','holidayEditModal','holidayEditForm','holidayEditTitle','holidayEditId','holidayStart','holidayEnd',
     'holidayTitle','holidayType','holidayScope','holidayIcon','holidayNotes','saveHolidayBtn','deleteHolidayBtn',
-    'quickAddModal','quickAddDateText','quickAddProgramBtn','quickAddHolidayBtn','toast'
+    'quickAddModal','quickAddDateText','quickAddProgramBtn','quickAddHolidayBtn',
+    'summaryChoiceModal','summaryChoiceMonth','summaryHolidayOnlyBtn','summaryProgramOnlyBtn','summaryCombinedBtn',
+    'summaryResultModal','summaryResultTitle','summaryResultSubtitle','summaryResultStats','summaryResultHead','summaryResultBody','printSummaryBtn',
+    'summaryPrintSheet','summaryPrintLogo','summaryPrintSchool','summaryPrintTitle','summaryPrintSubtitle','summaryPrintStats','summaryPrintHead','summaryPrintBody','toast'
   ].forEach(id => el[id] = document.getElementById(id));
 }
 
@@ -135,6 +138,8 @@ function applyBranding() {
   el.schoolLogo.src = CONFIG.SCHOOL_LOGO_URL;
   el.holidayPrintLogo.src = CONFIG.SCHOOL_LOGO_URL;
   el.holidayPrintSchool.textContent = CONFIG.SCHOOL_NAME;
+  el.summaryPrintLogo.src = CONFIG.SCHOOL_LOGO_URL;
+  el.summaryPrintSchool.textContent = CONFIG.SCHOOL_NAME;
 }
 
 function buildMonthSelect() {
@@ -158,8 +163,12 @@ function bindEvents() {
     closeModal('quickAdd');
     openHolidayForAdd(date);
   });
-  el.holidayScheduleBtn.addEventListener('click', () => openHolidaySchedule());
-  el.holidayScheduleBtn2.addEventListener('click', () => openHolidaySchedule());
+  el.holidayScheduleBtn.addEventListener('click', openSummaryChoice);
+  el.holidayScheduleBtn2.addEventListener('click', openSummaryChoice);
+  el.summaryHolidayOnlyBtn.addEventListener('click', () => generateMonthlySummary('holiday'));
+  el.summaryProgramOnlyBtn.addEventListener('click', () => generateMonthlySummary('program'));
+  el.summaryCombinedBtn.addEventListener('click', () => generateMonthlySummary('combined'));
+  el.printSummaryBtn.addEventListener('click', printGeneratedSummary);
   el.printHolidayBtn.addEventListener('click', printHolidaySchedule);
   el.addHolidayBtn2.addEventListener('click', () => requireAdminAction(() => openHolidayForAdd()));
   el.holidayEditForm.addEventListener('submit', saveHoliday);
@@ -563,6 +572,141 @@ function holidayTypeSlug(type) {
   return ({'Cuti Umum':'public','Cuti Negeri':'state','Cuti Sekolah':'school','Perayaan':'festival','Sambutan':'observance'})[type] || 'festival';
 }
 
+function openSummaryChoice() {
+  el.summaryChoiceMonth.textContent = `${MONTHS[state.month]} ${CONFIG.YEAR}`;
+  openModal('summaryChoice');
+}
+
+function getProgramsForMonth(month) {
+  return state.events
+    .filter(e => {
+      const p = dateParts(e.date);
+      return p.year === CONFIG.YEAR && p.month === month + 1;
+    })
+    .slice()
+    .sort((a,b) => a.date.localeCompare(b.date) || (a.time || '').localeCompare(b.time || '') || a.title.localeCompare(b.title));
+}
+
+function summaryModeLabel(mode) {
+  return mode === 'holiday' ? 'Ringkasan Cuti Sahaja' : mode === 'program' ? 'Ringkasan Program Sahaja' : 'Ringkasan Cuti + Program';
+}
+
+function generateMonthlySummary(mode) {
+  closeModal('summaryChoice');
+  const monthName = MONTHS[state.month];
+  const periods = getHolidayPeriodsForMonth(state.month);
+  const programs = getProgramsForMonth(state.month);
+  const title = `${summaryModeLabel(mode)} • ${monthName} ${CONFIG.YEAR}`;
+  el.summaryResultTitle.textContent = title;
+
+  let head = '';
+  let body = '';
+  let subtitle = '';
+  let statsHtml = '';
+
+  if (mode === 'holiday') {
+    head = '<tr><th>Tarikh</th><th>Hari</th><th>Cuti / Perayaan</th><th>Jenis</th><th>Skop</th></tr>';
+    body = buildHolidaySummaryRows(periods);
+    const schoolDays = periods.filter(x => x.type === 'Cuti Sekolah').reduce((n,x) => n + countDaysInMonth(x.start,x.end,state.month,CONFIG.YEAR),0);
+    statsHtml = buildGeneratedStats([
+      ['Rekod Cuti', periods.length],
+      ['Cuti Umum', periods.filter(x => x.type === 'Cuti Umum').length],
+      ['Cuti Negeri', periods.filter(x => x.type === 'Cuti Negeri').length],
+      ['Hari Cuti Sekolah', schoolDays]
+    ]);
+    subtitle = `${periods.length} rekod cuti, perayaan dan sambutan bagi ${monthName} ${CONFIG.YEAR}.`;
+  } else if (mode === 'program') {
+    head = '<tr><th>Tarikh</th><th>Hari</th><th>Program</th><th>Masa</th><th>Tempat</th><th>Kategori</th></tr>';
+    body = buildProgramSummaryRows(programs);
+    const cats = new Set(programs.map(x => x.category).filter(Boolean));
+    statsHtml = buildGeneratedStats([
+      ['Jumlah Program', programs.length],
+      ['Kategori', cats.size],
+      ['Hari Berprogram', new Set(programs.map(x => x.date)).size],
+      ['Bulan', monthName]
+    ]);
+    subtitle = `${programs.length} program sekolah direkodkan bagi ${monthName} ${CONFIG.YEAR}.`;
+  } else {
+    head = '<tr><th>Tarikh</th><th>Hari</th><th>Jenis Rekod</th><th>Perkara</th><th>Masa / Tempoh</th><th>Tempat / Skop</th></tr>';
+    body = buildCombinedSummaryRows(periods, programs);
+    statsHtml = buildGeneratedStats([
+      ['Program', programs.length],
+      ['Rekod Cuti', periods.length],
+      ['Jumlah Rekod', programs.length + periods.length],
+      ['Bulan', monthName]
+    ]);
+    subtitle = `${programs.length} program dan ${periods.length} rekod cuti/perayaan bagi ${monthName} ${CONFIG.YEAR}.`;
+  }
+
+  el.summaryResultSubtitle.textContent = subtitle;
+  el.summaryResultStats.innerHTML = statsHtml;
+  el.summaryResultHead.innerHTML = head;
+  el.summaryResultBody.innerHTML = body;
+  state.generatedSummary = { mode, title, subtitle, statsHtml, head, body };
+  openModal('summaryResult');
+}
+
+function buildGeneratedStats(items) {
+  return items.map(([label,value]) => `<div><b>${escapeHtml(value)}</b><span>${escapeHtml(label)}</span></div>`).join('');
+}
+
+function buildHolidaySummaryRows(periods) {
+  if (!periods.length) return '<tr><td colspan="5" class="table-empty">Tiada cuti, perayaan atau sambutan direkodkan untuk bulan ini.</td></tr>';
+  return periods.map(p => `<tr>
+    <td><strong>${escapeHtml(formatPeriodDate(p))}</strong></td>
+    <td>${escapeHtml(formatPeriodDay(p))}</td>
+    <td><span class="table-icon">${p.icon || '🎉'}</span>${escapeHtml(p.title)}</td>
+    <td><span class="type-badge type-${holidayTypeSlug(p.type)}">${escapeHtml(p.type)}</span></td>
+    <td>${escapeHtml(p.scope)}</td>
+  </tr>`).join('');
+}
+
+function buildProgramSummaryRows(programs) {
+  if (!programs.length) return '<tr><td colspan="6" class="table-empty">Tiada program sekolah direkodkan untuk bulan ini.</td></tr>';
+  return programs.map(p => {
+    const d = localDate(p.date);
+    const dp = dateParts(p.date);
+    return `<tr>
+      <td><strong>${dp.day} ${MONTHS[dp.month-1]}</strong></td>
+      <td>${DAYS[d.getDay()]}</td>
+      <td>${escapeHtml(p.title)}</td>
+      <td>${escapeHtml(p.time || '—')}</td>
+      <td>${escapeHtml(p.place || '—')}</td>
+      <td><span class="program-summary-badge cat-${CATEGORY_SLUG[p.category] || 'lain-lain'}">${escapeHtml(p.category || 'Lain-lain')}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function buildCombinedSummaryRows(periods, programs) {
+  const rows = [];
+  periods.forEach(p => rows.push({
+    date:p.start,
+    html:`<tr><td><strong>${escapeHtml(formatPeriodDate(p))}</strong></td><td>${escapeHtml(formatPeriodDay(p))}</td><td><span class="record-type holiday-record">CUTI</span></td><td>${p.icon || '🎉'} ${escapeHtml(p.title)}</td><td>${p.start === p.end ? '1 hari' : escapeHtml(formatPeriodDate(p))}</td><td>${escapeHtml(p.scope)}</td></tr>`
+  }));
+  programs.forEach(p => {
+    const d = localDate(p.date), dp = dateParts(p.date);
+    rows.push({
+      date:p.date,
+      html:`<tr><td><strong>${dp.day} ${MONTHS[dp.month-1]}</strong></td><td>${DAYS[d.getDay()]}</td><td><span class="record-type program-record">PROGRAM</span></td><td>${escapeHtml(p.title)}</td><td>${escapeHtml(p.time || '—')}</td><td>${escapeHtml(p.place || '—')}</td></tr>`
+    });
+  });
+  rows.sort((a,b) => a.date.localeCompare(b.date));
+  return rows.length ? rows.map(x => x.html).join('') : '<tr><td colspan="6" class="table-empty">Tiada cuti atau program direkodkan untuk bulan ini.</td></tr>';
+}
+
+function printGeneratedSummary() {
+  const summary = state.generatedSummary;
+  if (!summary) return;
+  el.summaryPrintTitle.textContent = summary.title.toUpperCase();
+  el.summaryPrintSubtitle.textContent = summary.subtitle;
+  el.summaryPrintStats.innerHTML = summary.statsHtml;
+  el.summaryPrintHead.innerHTML = summary.head;
+  el.summaryPrintBody.innerHTML = summary.body;
+  document.body.classList.add('print-summary');
+  closeModal('summaryResult');
+  setTimeout(() => window.print(), 60);
+}
+
 function openHolidaySchedule(highlightId = '') {
   const periods = getHolidayPeriodsForMonth(state.month);
   el.holidayModalTitle.textContent = `Jadual Cuti • ${MONTHS[state.month]} ${CONFIG.YEAR}`;
@@ -586,7 +730,7 @@ function printHolidaySchedule() {
   setTimeout(() => window.print(), 60);
 }
 
-window.addEventListener('afterprint', () => document.body.classList.remove('print-holidays'));
+window.addEventListener('afterprint', () => { document.body.classList.remove('print-holidays'); document.body.classList.remove('print-summary'); });
 
 function buildHolidayRows(periods, highlightId) {
   if (!periods.length) return `<tr><td colspan="${state.isAdmin ? 6 : 5}" class="table-empty">Tiada rekod untuk bulan ini.</td></tr>`;
@@ -793,8 +937,8 @@ async function deleteEvent() {
 }
 
 function dateParts(date) { const [year,month,day] = String(date).split('-').map(Number); return { year, month, day }; }
-function openModal(name) { ({ login: el.loginModal, event: el.eventModal, holiday: el.holidayModal, holidayEdit: el.holidayEditModal, quickAdd: el.quickAddModal })[name]?.classList.remove('hidden'); }
-function closeModal(name) { ({ login: el.loginModal, event: el.eventModal, holiday: el.holidayModal, holidayEdit: el.holidayEditModal, quickAdd: el.quickAddModal })[name]?.classList.add('hidden'); }
+function openModal(name) { ({ login: el.loginModal, event: el.eventModal, holiday: el.holidayModal, holidayEdit: el.holidayEditModal, quickAdd: el.quickAddModal, summaryChoice: el.summaryChoiceModal, summaryResult: el.summaryResultModal })[name]?.classList.remove('hidden'); }
+function closeModal(name) { ({ login: el.loginModal, event: el.eventModal, holiday: el.holidayModal, holidayEdit: el.holidayEditModal, quickAdd: el.quickAddModal, summaryChoice: el.summaryChoiceModal, summaryResult: el.summaryResultModal })[name]?.classList.add('hidden'); }
 
 async function postApi(payload) {
   if (!isApiConfigured()) throw new Error('URL Apps Script belum dikonfigurasi.');
