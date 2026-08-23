@@ -4,7 +4,7 @@ const CONFIG = Object.freeze({
   YEAR: 2026,
   SCHOOL_NAME: 'SEKOLAH KEBANGSAAN SUNGAI TIRAM',
   SCHOOL_LOGO_URL: 'https://iili.io/CLva44f.md.png',
-  CSV_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSBaeb8q0__d2wKSbw9jpVdAFIAUP7KNqzixHqTTnA9yKD3NO0-la8_gCtj6Ex8PJLlb2S1zE-vqi3/pub?gid=1122801319&single=true&output=csv',
+  CSV_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSBaeb8q0__d2wKSbw9jpVdAFIAUP7KNqzixHqTTnA9yKD3NO0-la8_gCtj6Ex8PJLlb2S1zE-vqi3/pub?gid=457971484&single=true&output=csv',
   APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzxRYxVp5t3P-xMXJdjWl64afyC8klWCMEG-JO1VdnTB32dVL1aFRffX6NVe_0g181U/exec'
 });
 
@@ -74,6 +74,22 @@ const HOLIDAY_PERIODS_2026 = Object.freeze([
   { id:'dec-christmas', start:'2026-12-25', end:'2026-12-25', title:'Hari Krismas', type:'Cuti Umum', scope:'Johor', icon:'🎄' }
 ]);
 
+// Tarikh pembayaran gaji 2026 berdasarkan jadual Jabatan Akauntan Negara Malaysia (ANM).
+const PAYROLL_DATES_2026 = Object.freeze([
+  { date:'2026-01-22', day:'Khamis', note:'' },
+  { date:'2026-02-12', day:'Khamis', note:'Tahun Baharu Cina 17 & 18 Februari 2026 (Selasa & Rabu)' },
+  { date:'2026-03-13', day:'Jumaat', note:'Hari Raya Puasa 21 & 22 Mac 2026 (Sabtu & Ahad)' },
+  { date:'2026-04-16', day:'Khamis', note:'' },
+  { date:'2026-05-21', day:'Khamis', note:'Hari Raya Haji 27 & 28 Mei 2026 (Rabu & Khamis)' },
+  { date:'2026-06-25', day:'Khamis', note:'' },
+  { date:'2026-07-23', day:'Khamis', note:'' },
+  { date:'2026-08-24', day:'Isnin', note:'' },
+  { date:'2026-09-24', day:'Khamis', note:'' },
+  { date:'2026-10-22', day:'Khamis', note:'' },
+  { date:'2026-11-25', day:'Rabu', note:'Hari Deepavali 8 November 2026 (Ahad)' },
+  { date:'2026-12-21', day:'Isnin', note:'Hari Krismas 25 Disember 2026 (Jumaat)' }
+]);
+
 const state = {
   month: new Date().getFullYear() === CONFIG.YEAR ? new Date().getMonth() : 0,
   events: [],
@@ -101,7 +117,7 @@ function cacheElements() {
   [
     'loadingOverlay','loadingText','schoolLogo','schoolName','adminBtn','printBtn','refreshBtn','logoutBtn','addHolidayBtn','addHolidayBtn2',
     'holidayScheduleBtn','holidayScheduleBtn2','prevMonthBtn','nextMonthBtn','monthSelect','adminBadge','monthTitle','programCount',
-    'holidayCount','holidayDayCount','calendarGrid','emptyMonthMessage','holidaySummaryTitle','holidaySummaryStats','holidaySummaryList',
+    'holidayCount','holidayDayCount','salaryDate','calendarGrid','emptyMonthMessage','holidaySummaryTitle','holidaySummaryStats','holidaySummaryList',
     'loginModal','loginForm','adminIdInput','adminPasswordInput','eventModal','eventModalTitle','eventForm','eventId','eventDate',
     'eventTime','eventTitle','eventPlace','eventCategory','eventNotes','saveEventBtn','deleteEventBtn','holidayModal','holidayModalTitle',
     'holidayModalSubtitle','holidayTableBody','printHolidayBtn','holidayPrintSheet','holidayPrintLogo','holidayPrintSchool',
@@ -207,21 +223,36 @@ function logoutAdmin() {
 async function loadEvents({ preferApi = false } = {}) {
   setLoading(true, 'Memuatkan takwim 2026...');
   try {
-    let records;
-    if (preferApi && isApiConfigured()) {
-      try { records = await loadFromApi(); } catch (_) { records = await loadFromCsv(); }
+    let records = [];
+
+    // CSV semasa ialah tab Cuti2026. Program sekolah dibaca melalui Apps Script.
+    if (isApiConfigured()) {
+      try {
+        records = await loadFromApi();
+      } catch (apiErr) {
+        console.warn('Data program belum tersedia melalui Apps Script:', apiErr);
+        // Jangan anggap kegagalan tab program sebagai kegagalan keseluruhan takwim.
+        records = [];
+      }
     } else {
-      try { records = await loadFromCsv(); }
-      catch (csvErr) { if (!isApiConfigured()) throw csvErr; records = await loadFromApi(); }
+      // Fallback sahaja jika suatu hari CSV ditukar semula kepada struktur program.
+      try {
+        const csvRecords = await loadFromCsv();
+        records = looksLikeProgramRecords(csvRecords) ? csvRecords : [];
+      } catch (_) {
+        records = [];
+      }
     }
+
     state.events = normalizeEvents(records).filter(x => x.date.startsWith(`${CONFIG.YEAR}-`));
     renderCalendar();
-  } catch (err) {
-    console.error(err);
-    state.events = [];
-    renderCalendar();
-    showToast('Data program Google Sheet tidak dapat dimuatkan. Cuti 2026 masih boleh dipaparkan.', 'error');
   } finally { setLoading(false); }
+}
+
+function looksLikeProgramRecords(records) {
+  if (!Array.isArray(records) || !records.length) return false;
+  const keys = Object.keys(records[0] || {}).map(k => String(k).trim().toUpperCase());
+  return keys.includes('TARIKH') && keys.includes('PROGRAM');
 }
 
 
@@ -231,21 +262,37 @@ async function refreshAllData({ preferApi = false } = {}) {
 }
 
 async function loadCustomHolidays() {
-  if (!isApiConfigured()) { state.customHolidays = []; renderCalendar(); return; }
   try {
-    const url = new URL(CONFIG.APPS_SCRIPT_URL);
-    url.searchParams.set('action', 'listHolidays');
-    url.searchParams.set('_', String(Date.now()));
-    const res = await fetch(url.toString(), { cache: 'no-store' });
-    const data = safeJson(await res.text());
-    if (!data.success) throw new Error(data.message || 'Gagal membaca cuti tambahan.');
-    state.customHolidays = normalizeCustomHolidays(data.holidays || []);
+    let records = [];
+    let loaded = false;
+
+    if (isApiConfigured()) {
+      try {
+        const url = new URL(CONFIG.APPS_SCRIPT_URL);
+        url.searchParams.set('action', 'listHolidays');
+        url.searchParams.set('_', String(Date.now()));
+        const res = await fetch(url.toString(), { cache: 'no-store' });
+        const data = safeJson(await res.text());
+        if (!data.success) throw new Error(data.message || 'Gagal membaca cuti tambahan.');
+        records = data.holidays || [];
+        loaded = true;
+      } catch (apiErr) {
+        console.warn('Fallback cuti melalui CSV:', apiErr);
+      }
+    }
+
+    // URL CSV baharu ialah tab Cuti2026, jadi ia menjadi fallback terus untuk data cuti.
+    if (!loaded) {
+      records = await loadFromCsv();
+    }
+
+    state.customHolidays = normalizeCustomHolidays(records);
     renderCalendar();
   } catch (err) {
     console.warn('Cuti tambahan belum dapat dimuatkan:', err);
     state.customHolidays = [];
     renderCalendar();
-    if (state.isAdmin) showToast('Modul cuti tambahan belum aktif pada Apps Script. Deploy backend baharu dalam ZIP ini.', 'error');
+    if (state.isAdmin) showToast('Data cuti tambahan belum dapat dimuatkan.', 'error');
   }
 }
 
@@ -354,12 +401,14 @@ function renderCalendar() {
   const monthEvents = state.events.filter(e => dateParts(e.date).month === month + 1);
   const monthHolidayPeriods = getHolidayPeriodsForMonth(month);
   const monthHolidayEvents = getHolidayEventsForMonth(month);
+  const monthPayroll = getPayrollForMonth(month);
   const holidayDates = new Set(monthHolidayEvents.filter(h => /^Cuti /.test(h.type)).map(h => h.date));
 
   el.monthTitle.textContent = `${MONTHS[month].toUpperCase()} ${year}`;
   el.programCount.textContent = String(monthEvents.length);
   el.holidayCount.textContent = String(monthHolidayPeriods.length);
   el.holidayDayCount.textContent = String(holidayDates.size);
+  el.salaryDate.textContent = monthPayroll ? String(dateParts(monthPayroll.date).day) : '—';
   el.emptyMonthMessage.classList.toggle('hidden', monthEvents.length !== 0);
 
   const firstDay = new Date(year, month, 1).getDay();
@@ -379,6 +428,7 @@ function renderCalendar() {
     const dayEvents = outside ? [] : monthEvents.filter(e => e.date === dateKey);
     const dayHolidays = outside ? [] : monthHolidayEvents.filter(e => e.date === dateKey);
     const today = isTodayKey(dateKey);
+    const payroll = !outside && monthPayroll && monthPayroll.date === dateKey ? monthPayroll : null;
     const addButton = state.isAdmin && !outside ? `<button class="add-day-btn no-print" type="button" data-add-date="${dateKey}" title="Tambah program">+</button>` : '';
 
     const holidayChips = dayHolidays.map(h => {
@@ -387,6 +437,10 @@ function renderCalendar() {
         <span>${h.icon || '🎉'}</span><strong>${escapeHtml(h.title)}${h.source === 'custom' ? ' ✎' : ''}</strong>
       </button>`;
     }).join('');
+
+    const payrollChip = payroll ? `<div class="payroll-chip" title="${escapeHtml(payroll.note || 'Tarikh pembayaran gaji bulanan ANM')}">
+      <span class="payroll-icon">💰</span><strong>Pembayaran Gaji</strong><small>ANM${payroll.note ? ' • ' + escapeHtml(payroll.note) : ''}</small>
+    </div>` : '';
 
     const programChips = dayEvents.map(event => {
       const slug = CATEGORY_SLUG[event.category] || 'lain-lain';
@@ -399,7 +453,7 @@ function renderCalendar() {
     const classes = ['day-cell', outside ? 'outside' : '', today ? 'today-ish' : '', dayHolidays.length ? 'has-holiday' : '', weekday === 0 ? 'sunday' : '', weekday === 6 ? 'saturday' : ''].filter(Boolean).join(' ');
     cells.push(`<div class="${classes}">
       <div class="day-top"><span class="day-number">${day}</span>${addButton}</div>
-      <div class="events-stack">${holidayChips}${programChips}</div>
+      <div class="events-stack">${payrollChip}${holidayChips}${programChips}</div>
     </div>`);
   }
 
@@ -408,6 +462,10 @@ function renderCalendar() {
   el.calendarGrid.querySelectorAll('[data-event-id]').forEach(btn => btn.addEventListener('click', () => openEventById(btn.dataset.eventId)));
   el.calendarGrid.querySelectorAll('[data-holiday-id]').forEach(btn => btn.addEventListener('click', () => handleHolidayClick(btn.dataset.holidayId)));
   renderHolidaySummary();
+}
+
+function getPayrollForMonth(month) {
+  return PAYROLL_DATES_2026.find(p => dateParts(p.date).month === month + 1) || null;
 }
 
 function renderHolidaySummary() {

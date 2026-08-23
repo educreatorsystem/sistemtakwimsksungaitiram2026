@@ -47,3 +47,17 @@ button,select,input,textarea{font:inherit} button{cursor:pointer}.hidden{display
 .admin-active .holiday-chip[data-holiday-id] strong,.admin-active .summary-holiday-item em{transition:.2s}
 .admin-active .holiday-chip[data-holiday-id]:hover strong,.admin-active .summary-holiday-item:hover em{letter-spacing:.005em}
 @media(max-width:700px){.summary-actions{width:100%;justify-content:flex-start}.summary-actions .btn{flex:1 1 180px}.holiday-admin-cell{min-width:94px}}
+
+
+/* ===== TARIKH PEMBAYARAN GAJI ANM ===== */
+.stat-salary{background:linear-gradient(135deg,#e9fff3,#dcf8ea);color:#147451;border-color:#bfead7;position:relative;overflow:hidden}
+.stat-salary:before{content:'💰';position:absolute;right:7px;top:4px;font-size:.9rem;opacity:.25;transform:rotate(10deg)}
+.payroll-dot{background:#20a96b!important;box-shadow:0 0 0 3px rgba(32,169,107,.12)!important}
+.payroll-chip{width:100%;text-align:left;border-radius:10px;padding:7px 8px;line-height:1.22;font-size:.7rem;border:1px solid #b8e9d4;border-left:4px solid #20a96b;background:linear-gradient(135deg,#eafff4,#f4fffa);color:#176647;display:grid;grid-template-columns:18px 1fr;column-gap:4px;box-shadow:0 3px 10px rgba(32,169,107,.08);transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;position:relative;overflow:hidden}
+.payroll-chip:after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.65) 45%,transparent 70%);transform:translateX(-130%);transition:transform .55s ease}
+.payroll-chip:hover{transform:translateX(3px) scale(1.018);box-shadow:0 7px 16px rgba(32,169,107,.18);filter:saturate(1.08)}
+.payroll-chip:hover:after{transform:translateX(130%)}
+.payroll-chip strong{font-size:.71rem;grid-column:2}
+.payroll-chip small{grid-column:2;font-size:.57rem;opacity:.78;margin-top:2px;display:block;white-space:normal}
+.payroll-icon{grid-row:1/3;align-self:start}
+@media print{.payroll-chip{padding:3px 4px;font-size:5.8pt;transform:none!important;box-shadow:none!important}.payroll-chip strong{font-size:6pt}.payroll-chip small{font-size:5.2pt}}

@@ -1,7 +1,7 @@
 /**
  * TAKWIM SEKOLAH 2026 - BACKEND TANPA AI
  * Spreadsheet ID: 1ye3NpIRhD0AdjlAVoIeFGjveircuXVlOUDx65jCs80E
- * Sheet GID: 1122801319
+ * Program sheet: Takwim2026
  *
  * Gantikan kod Apps Script lama dengan fail ini dan deploy NEW VERSION.
  * URL /exec boleh kekal sama jika anda mengemas kini deployment sedia ada.
@@ -9,7 +9,7 @@
 
 const CONFIG = Object.freeze({
   SPREADSHEET_ID: '1ye3NpIRhD0AdjlAVoIeFGjveircuXVlOUDx65jCs80E',
-  SHEET_GID: 1122801319,
+  PROGRAM_SHEET_NAME: 'Takwim2026',
   YEAR: 2026,
   TIMEZONE: 'Asia/Kuala_Lumpur',
   ADMIN_SESSION_SECONDS: 21600,
@@ -198,9 +198,19 @@ function normalizeCategory_(value){const s=String(value||'').trim();for(let i=0;
 function findRowById_(sheet,id){const lastRow=sheet.getLastRow();if(lastRow<2)return 0;const values=sheet.getRange(2,1,lastRow-1,1).getDisplayValues();for(let i=0;i<values.length;i++)if(String(values[i][0]).trim()===id)return i+2;return 0;}
 function makeEventId_(){return'EVT-'+CONFIG.YEAR+'-'+Utilities.getUuid().split('-')[0].toUpperCase()+'-'+Date.now().toString(36).toUpperCase();}
 function getSheet_(){
-  const ss=SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID),sheets=ss.getSheets();
-  for(let i=0;i<sheets.length;i++)if(Number(sheets[i].getSheetId())===Number(CONFIG.SHEET_GID))return sheets[i];
-  throw new Error('Sheet dengan GID '+CONFIG.SHEET_GID+' tidak ditemui.');
+  const ss=SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  let sheet=ss.getSheetByName(CONFIG.PROGRAM_SHEET_NAME);
+  if(!sheet){
+    sheet=ss.insertSheet(CONFIG.PROGRAM_SHEET_NAME);
+    sheet.getRange(1,1,1,HEADERS.length).setValues([HEADERS]);
+    sheet.setFrozenRows(1);
+    sheet.getRange('A1:H1').setFontWeight('bold').setBackground('#5b50d6').setFontColor('#ffffff');
+    sheet.getRange('B2:B1000').setNumberFormat('@');
+    sheet.getRange('H2:H1000').setNumberFormat('@');
+    const rule=SpreadsheetApp.newDataValidation().requireValueInList(CATEGORIES,true).setAllowInvalid(false).build();
+    sheet.getRange('F2:F1000').setDataValidation(rule);
+  }
+  return sheet;
 }
 function parseBody_(e){if(!e||!e.postData||!e.postData.contents)throw new Error('Request body kosong.');try{return JSON.parse(e.postData.contents)}catch(_){throw new Error('Request JSON tidak sah.')}}
 function json_(obj){return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON)}

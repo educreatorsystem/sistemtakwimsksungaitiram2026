@@ -58,3 +58,13 @@ Jenis yang tersedia:
 
 ## Admin
 ID dan password menggunakan konfigurasi admin sedia ada pada Apps Script.
+
+
+## Tarikh Pembayaran Gaji ANM 2026
+Sistem turut memaparkan tarikh pembayaran gaji bulanan ANM sebagai penanda hijau berikon 💰 pada kalendar. Data dimasukkan berdasarkan jadual ANM yang dibekalkan.
+
+## URL CSV semasa
+Sistem menggunakan URL CSV tab `Cuti2026` berikut sebagai sumber/fallback data cuti:
+`https://docs.google.com/spreadsheets/d/e/2PACX-1vRSBaeb8q0__d2wKSbw9jpVdAFIAUP7KNqzixHqTTnA9yKD3NO0-la8_gCtj6Ex8PJLlb2S1zE-vqi3/pub?gid=457971484&single=true&output=csv`
+
+Data program sekolah pula dibaca melalui Apps Script dan disimpan pada tab `Takwim2026`. Backend baharu akan mencipta tab `Takwim2026` secara automatik jika belum ada.
