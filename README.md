@@ -1,35 +1,60 @@
-# TAKWIM SEKOLAH 2026 - VERSI CERIA + CUTI BULANAN
+# Takwim Sekolah 2026 — Johor + Modul Tambah Cuti
 
-## Untuk GitHub Pages
-Upload fail ini ke root repository:
-- index.html
-- style.css
-- app.js
+Versi ini mempunyai:
+- Takwim 12 bulan tahun 2026.
+- Cuti umum, cuti Negeri Johor, cuti persekolahan dan perayaan yang telah dimasukkan dalam sistem.
+- Ringkasan cuti bulanan.
+- Jana Jadual Cuti Bulanan dan Cetak Jadual.
+- Login admin untuk tambah/sunting/padam program.
+- **Modul baharu: Tambah Cuti, Sunting Cuti dan Padam Cuti.**
+- Cuti tambahan admin disimpan dalam Google Sheet tab `Cuti2026`.
+- Cuti rasmi terbina dalam dikunci supaya tidak terpadam secara tidak sengaja.
+- Tiada fungsi AI dan tiada butang muat turun CSV.
 
-URL Apps Script sedia ada telah dimasukkan dalam app.js.
+## Fail GitHub
+Upload fail berikut ke root repository GitHub:
+- `index.html`
+- `style.css`
+- `app.js`
 
-## Fungsi baharu
-- Takwim tahun 2026.
-- Cuti/perayaan/sambutan berdasarkan Kalendar Kuda 2026 yang dibekalkan pengguna.
-- Ringkasan cuti bagi setiap bulan.
-- Butang "Jana Jadual Cuti Bulanan".
-- Cetak jadual cuti dan muat turun CSV.
-- Grafik lebih ceria, responsif dan animasi hover.
-- Login admin, tambah/sunting/padam program dan cetak kalendar bulanan dikekalkan.
+Folder `backend` tidak perlu diupload ke GitHub Pages; ia disediakan untuk Google Apps Script.
 
-## PENTING - Apps Script perlu dikemas kini kepada 2026
-Deployment Apps Script sedia ada sebelum ini memvalidasi tahun 2027. Untuk membolehkan admin menyimpan program tahun 2026:
+## WAJIB: Kemas kini Google Apps Script
+Untuk membolehkan fungsi **Tambah Cuti** berfungsi:
 
-1. Google Sheet > Extensions > Apps Script.
-2. Gantikan Code.gs dengan kandungan `backend/AppsScript_2026.gs`.
-3. Save.
-4. Jalankan `setupTakwimSystem2026()` sekali dan benarkan permission jika diminta.
-5. Jalankan `testConnection2026()` dan pastikan `year: 2026`.
-6. Deploy > Manage deployments > Edit (ikon pensel) > New version > Deploy.
-7. Kekalkan Execute as: Me dan Who has access: Anyone.
-8. Jika mengemas kini deployment sedia ada, URL /exec biasanya kekal sama dan app.js tidak perlu diubah.
+1. Buka Google Sheet yang digunakan oleh sistem.
+2. Klik **Extensions → Apps Script**.
+3. Gantikan kod `Code.gs` dengan kandungan fail `backend/AppsScript_2026.gs`.
+4. Save.
+5. Jalankan fungsi `setupTakwimSystem2026()` sekali.
+   - Fungsi ini akan memastikan jadual program tersedia.
+   - Ia juga akan mencipta tab baharu bernama **Cuti2026** dengan header dan dropdown jenis cuti.
+6. Jika Google meminta authorization, pilih akaun anda dan tekan **Allow**.
+7. Pergi ke **Deploy → Manage deployments → Edit (ikon pensel) → New version → Deploy**.
+8. Kekalkan **Execute as: Me** dan **Who has access: Anyone**.
 
-Tiada AI dan tiada GEMINI_API_KEY diperlukan.
+Jika anda mengemas kini deployment yang sama, URL `/exec` biasanya kekal sama dan `app.js` tidak perlu diedit semula.
 
-## Data cuti
-Data cuti/perayaan disimpan terbina dalam frontend supaya tidak mengubah data program sekolah di Google Sheet. Item negeri/wilayah dilabel dengan skop masing-masing; ia tidak bermaksud semua cuti negeri terpakai di Johor.
+## Struktur tab Cuti2026
+`ID | TARIKH_MULA | TARIKH_AKHIR | NAMA_CUTI | JENIS | SKOP | IKON | CATATAN | UPDATED_AT`
+
+Jenis yang tersedia:
+- Cuti Umum
+- Cuti Negeri
+- Cuti Sekolah
+- Perayaan
+- Sambutan
+
+## Cara guna Tambah Cuti
+1. Log masuk Admin.
+2. Butang **➕ Tambah Cuti** akan muncul.
+3. Isi tarikh mula, tarikh akhir, nama cuti, jenis, skop, ikon dan catatan.
+4. Tekan **Simpan Cuti**.
+5. Rekod akan terus muncul pada:
+   - Takwim bulanan
+   - Ringkasan Cuti Bulanan
+   - Jadual Cuti Bulanan
+6. Cuti yang ditambah admin mempunyai tanda `ADMIN` / `✎` dan boleh disunting atau dipadam.
+
+## Admin
+ID dan password menggunakan konfigurasi admin sedia ada pada Apps Script.

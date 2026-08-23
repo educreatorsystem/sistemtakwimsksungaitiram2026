@@ -38,6 +38,7 @@
 
     <div class="header-actions no-print">
       <button id="holidayScheduleBtn" class="btn btn-holiday" type="button">📋 Jana Jadual Cuti Bulanan</button>
+      <button id="addHolidayBtn" class="btn btn-add-holiday hidden" type="button">➕ Tambah Cuti</button>
       <button id="adminBtn" class="btn btn-light" type="button">🔐 Sunting Takwim</button>
       <button id="printBtn" class="btn btn-light" type="button">🖨️ Cetak Bulan</button>
       <button id="refreshBtn" class="btn btn-light" type="button">↻ Refresh</button>
@@ -50,7 +51,7 @@
       <div class="welcome-icon">🌈</div>
       <div>
         <strong>Takwim Pintar 2026</strong>
-        <span>Program sekolah digabungkan dengan cuti, perayaan dan sambutan berdasarkan Kalendar Kuda 2026 yang dibekalkan.</span>
+        <span>Program sekolah, cuti umum, cuti Negeri Johor dan cuti persekolahan 2026 dalam satu paparan yang mudah dan ceria.</span>
       </div>
     </section>
 
@@ -98,7 +99,7 @@
         <div id="calendarGrid" class="calendar-grid days"></div>
       </div>
 
-      <div id="emptyMonthMessage" class="empty-message hidden">Tiada program sekolah direkodkan untuk bulan ini. Cuti dan perayaan rujukan masih dipaparkan.</div>
+      <div id="emptyMonthMessage" class="empty-message hidden">Tiada program sekolah direkodkan untuk bulan ini. Cuti dan perayaan masih dipaparkan.</div>
     </section>
 
     <section class="holiday-summary-card" id="holidaySummarySection">
@@ -106,9 +107,12 @@
         <div>
           <div class="eyebrow holiday-eyebrow">RINGKASAN CUTI BULAN INI</div>
           <h3 id="holidaySummaryTitle">Ringkasan Januari 2026</h3>
-          <p>Rujukan: Kalendar Kuda 2026 yang dibekalkan. Cuti negeri ditandakan mengikut negeri/wilayah.</p>
+          <p>Ringkasan cuti umum, cuti Negeri Johor, cuti sekolah dan perayaan bagi bulan yang dipilih.</p>
         </div>
-        <button id="holidayScheduleBtn2" class="btn btn-holiday no-print" type="button">📋 Lihat Jadual Penuh</button>
+        <div class="summary-actions no-print">
+          <button id="addHolidayBtn2" class="btn btn-add-holiday hidden" type="button">➕ Tambah Cuti</button>
+          <button id="holidayScheduleBtn2" class="btn btn-holiday" type="button">📋 Lihat Jadual Penuh</button>
+        </div>
       </div>
       <div id="holidaySummaryStats" class="holiday-summary-stats"></div>
       <div id="holidaySummaryList" class="holiday-summary-list"></div>
@@ -162,6 +166,41 @@
     </div>
   </div>
 
+  <!-- Tambah / Sunting Cuti -->
+  <div id="holidayEditModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="holidayEditTitle">
+    <div class="modal-backdrop" data-close="holidayEdit"></div>
+    <div class="modal-panel pop-in">
+      <button class="modal-close" type="button" data-close="holidayEdit" aria-label="Tutup">×</button>
+      <div class="modal-icon">🎊</div>
+      <h3 id="holidayEditTitle">Tambah Cuti</h3>
+      <p class="muted">Cuti yang ditambah di sini akan disimpan ke Google Sheet dan terus dimasukkan dalam kalendar, ringkasan serta jadual cuti bulanan.</p>
+      <form id="holidayEditForm" class="form-grid">
+        <input id="holidayEditId" type="hidden" />
+        <label>Tarikh Mula<input id="holidayStart" type="date" min="2026-01-01" max="2026-12-31" required /></label>
+        <label>Tarikh Akhir<input id="holidayEnd" type="date" min="2026-01-01" max="2026-12-31" required /></label>
+        <label class="full">Nama Cuti / Perayaan<input id="holidayTitle" required maxlength="180" placeholder="Contoh: Cuti Khas Sekolah" /></label>
+        <label>Jenis
+          <select id="holidayType" required>
+            <option>Cuti Umum</option><option>Cuti Negeri</option><option selected>Cuti Sekolah</option><option>Perayaan</option><option>Sambutan</option>
+          </select>
+        </label>
+        <label>Skop<input id="holidayScope" maxlength="120" value="Sekolah Johor" placeholder="Contoh: Sekolah Johor" /></label>
+        <label>Ikon
+          <select id="holidayIcon">
+            <option value="🎒">🎒 Cuti Sekolah</option><option value="🎉">🎉 Cuti / Sambutan</option><option value="🇲🇾">🇲🇾 Kebangsaan</option><option value="👑">👑 Negeri</option><option value="🌙">🌙 Islam</option><option value="🕌">🕌 Keagamaan</option><option value="🪔">🪔 Perayaan</option><option value="🎄">🎄 Krismas</option><option value="🏫">🏫 Sekolah</option><option value="🌴">🌴 Cuti Panjang</option>
+          </select>
+        </label>
+        <label class="full">Catatan<textarea id="holidayNotes" rows="3" maxlength="500" placeholder="Catatan tambahan (jika ada)"></textarea></label>
+        <div class="form-actions full">
+          <button id="saveHolidayBtn" class="btn btn-primary" type="submit">Simpan Cuti</button>
+          <button id="deleteHolidayBtn" class="btn btn-danger hidden" type="button">Padam Cuti</button>
+          <button class="btn btn-secondary" type="button" data-close="holidayEdit">Batal</button>
+        </div>
+      </form>
+      <div class="holiday-admin-note">🛡️ Cuti rasmi terbina dalam dikunci. Hanya cuti tambahan admin boleh disunting atau dipadam.</div>
+    </div>
+  </div>
+
   <!-- Jadual Cuti -->
   <div id="holidayModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="holidayModalTitle">
     <div class="modal-backdrop" data-close="holiday"></div>
@@ -174,17 +213,16 @@
           <p id="holidayModalSubtitle" class="muted"></p>
         </div>
         <div class="holiday-modal-actions no-print">
-          <button id="downloadHolidayBtn" class="btn btn-secondary" type="button">⬇️ Muat Turun CSV</button>
           <button id="printHolidayBtn" class="btn btn-primary" type="button">🖨️ Cetak Jadual</button>
         </div>
       </div>
       <div class="table-wrap">
         <table class="holiday-table">
-          <thead><tr><th>Tarikh</th><th>Hari</th><th>Cuti / Perayaan</th><th>Jenis</th><th>Skop</th></tr></thead>
+          <thead><tr><th>Tarikh</th><th>Hari</th><th>Cuti / Perayaan</th><th>Jenis</th><th>Skop</th><th class="holiday-admin-col no-print">Tindakan</th></tr></thead>
           <tbody id="holidayTableBody"></tbody>
         </table>
       </div>
-      <p class="holiday-disclaimer">* Senarai ini ditranskripsikan daripada Kalendar Kuda 2026 yang dibekalkan. Label “Cuti Negeri” tidak semestinya terpakai di Johor.</p>
+      <p class="holiday-disclaimer">* Cuti negeri yang dipaparkan adalah khusus untuk Negeri Johor. Cuti sekolah adalah berdasarkan Kumpulan B.</p>
     </div>
   </div>
 
@@ -192,13 +230,13 @@
   <section id="holidayPrintSheet" class="holiday-print-sheet" aria-hidden="true">
     <div class="holiday-print-header">
       <img id="holidayPrintLogo" alt="Lencana sekolah" />
-      <div><div id="holidayPrintSchool" class="holiday-print-school"></div><h2 id="holidayPrintTitle"></h2><p>Jadual Cuti, Perayaan & Sambutan • Rujukan Kalendar Kuda 2026</p></div>
+      <div><div id="holidayPrintSchool" class="holiday-print-school"></div><h2 id="holidayPrintTitle"></h2><p>Jadual Cuti, Perayaan & Sambutan • Negeri Johor</p></div>
     </div>
     <table class="holiday-table holiday-table-print">
       <thead><tr><th>Tarikh</th><th>Hari</th><th>Cuti / Perayaan</th><th>Jenis</th><th>Skop</th></tr></thead>
       <tbody id="holidayPrintBody"></tbody>
     </table>
-    <p class="holiday-disclaimer">* Cuti negeri tertakluk kepada negeri/wilayah yang dinyatakan.</p>
+    <p class="holiday-disclaimer">* Jadual ini memfokuskan cuti yang terpakai di Negeri Johor dan cuti persekolahan Kumpulan B.</p>
   </section>
 
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>

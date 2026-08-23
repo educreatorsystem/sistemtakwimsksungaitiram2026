@@ -15,95 +15,69 @@ const CATEGORY_SLUG = {
   'Kokurikulum': 'kokurikulum', 'Sukan': 'sukan', 'Cuti': 'cuti', 'Lain-lain': 'lain-lain'
 };
 
-// Ditakrif berdasarkan item bernama/ditanda dalam Kalendar Kuda 2026 yang dibekalkan.
-// Sesetengah item ialah sambutan/perayaan dan bukan cuti umum di seluruh Malaysia.
+// Cuti dan perayaan 2026 yang dipaparkan dalam sistem ini difokuskan kepada Negeri Johor,
+// termasuk cuti umum, cuti negeri, cuti ganti, cuti persekolahan dan cuti tambahan sekolah.
 const HOLIDAY_PERIODS_2026 = Object.freeze([
-  { id:'jan-school', start:'2026-01-01', end:'2026-01-11', title:'Cuti Sekolah', type:'Cuti Sekolah', scope:'Sekolah', icon:'🎒' },
-  { id:'jan-newyear', start:'2026-01-01', end:'2026-01-01', title:'Tahun Baharu / Happy New Year', type:'Cuti Umum', scope:'Malaysia', icon:'🎆' },
-  { id:'jan-ns', start:'2026-01-14', end:'2026-01-14', title:'Hari Keputeraan Yang di-Pertuan Besar Negeri Sembilan', type:'Cuti Negeri', scope:'Negeri Sembilan', icon:'👑' },
-  { id:'jan-israk', start:'2026-01-17', end:'2026-01-17', title:'Israk & Mikraj', type:'Perayaan', scope:'Islam', icon:'🕌' },
+  // JANUARI
+  { id:'jan-israk', start:'2026-01-17', end:'2026-01-17', title:'Israk & Mikraj', type:'Perayaan', scope:'Johor', icon:'🕌' },
 
-  { id:'feb-thaipusam', start:'2026-02-01', end:'2026-02-01', title:'Thaipusam', type:'Perayaan', scope:'Hindu', icon:'🪔' },
-  { id:'feb-ft', start:'2026-02-01', end:'2026-02-01', title:'Hari Wilayah Persekutuan', type:'Cuti Negeri', scope:'Wilayah Persekutuan', icon:'🏙️' },
-  { id:'feb-spring', start:'2026-02-04', end:'2026-02-04', title:'Beginning of Spring', type:'Perayaan', scope:'Tradisi Cina', icon:'🌱' },
-  { id:'feb-valentine', start:'2026-02-14', end:'2026-02-14', title:'Hari Valentine', type:'Sambutan', scope:'Antarabangsa', icon:'💝' },
-  { id:'feb-cnyeve', start:'2026-02-16', end:'2026-02-16', title:'Malam Tahun Baharu Cina', type:'Perayaan', scope:'Perayaan Cina', icon:'🏮' },
-  { id:'feb-cny1', start:'2026-02-17', end:'2026-02-17', title:'Tahun Baharu Cina', type:'Cuti Umum', scope:'Malaysia', icon:'🧧' },
-  { id:'feb-cny2', start:'2026-02-18', end:'2026-02-18', title:'Tahun Baharu Cina - Hari Kedua', type:'Cuti Umum', scope:'Malaysia', icon:'🧧' },
-  { id:'feb-ramadan', start:'2026-02-19', end:'2026-02-19', title:'Awal Ramadan', type:'Perayaan', scope:'Islam', icon:'🌙' },
-  { id:'feb-merdeka-date', start:'2026-02-20', end:'2026-02-20', title:'Hari Pengisytiharan Tarikh Kemerdekaan', type:'Sambutan', scope:'Peringatan', icon:'🇲🇾' },
+  // FEBRUARI — JOHOR + CUTI TAMBAHAN SEKOLAH
+  { id:'feb-thaipusam', start:'2026-02-01', end:'2026-02-01', title:'Hari Thaipusam', type:'Cuti Negeri', scope:'Johor', icon:'🪔' },
+  { id:'feb-thaipusam-repl', start:'2026-02-02', end:'2026-02-02', title:'Cuti Ganti Hari Thaipusam', type:'Cuti Negeri', scope:'Johor', icon:'🪔' },
+  { id:'feb-kpm-cny1', start:'2026-02-16', end:'2026-02-16', title:'Cuti Tambahan – Tahun Baru Cina', type:'Cuti Sekolah', scope:'Sekolah Johor', icon:'🎒' },
+  { id:'feb-cny1', start:'2026-02-17', end:'2026-02-17', title:'Tahun Baru Cina', type:'Cuti Umum', scope:'Johor', icon:'🧧' },
+  { id:'feb-cny2', start:'2026-02-18', end:'2026-02-18', title:'Tahun Baru Cina (Hari Kedua)', type:'Cuti Umum', scope:'Johor', icon:'🧧' },
+  { id:'feb-awalramadan', start:'2026-02-19', end:'2026-02-19', title:'Awal Ramadhan', type:'Cuti Negeri', scope:'Johor', icon:'🌙' },
+  { id:'feb-kpm-cny2', start:'2026-02-19', end:'2026-02-19', title:'Cuti Tambahan – Tahun Baru Cina', type:'Cuti Sekolah', scope:'Sekolah Johor', icon:'🎒' },
+  { id:'feb-kpm-cny3', start:'2026-02-20', end:'2026-02-20', title:'Cuti Tambahan – Tahun Baru Cina', type:'Cuti Sekolah', scope:'Sekolah Johor', icon:'🎒' },
 
-  { id:'mar-lantern', start:'2026-03-03', end:'2026-03-03', title:'Lantern Festival', type:'Perayaan', scope:'Tradisi Cina', icon:'🏮' },
-  { id:'mar-terengganu-install', start:'2026-03-04', end:'2026-03-04', title:'Ulang Tahun Pertabalan Sultan Terengganu', type:'Cuti Negeri', scope:'Terengganu', icon:'👑' },
+  // MAC
   { id:'mar-nuzul', start:'2026-03-07', end:'2026-03-07', title:'Nuzul Al-Quran', type:'Perayaan', scope:'Islam', icon:'📖' },
-  { id:'mar-women', start:'2026-03-08', end:'2026-03-08', title:'Hari Wanita Sedunia', type:'Sambutan', scope:'Antarabangsa', icon:'🌷' },
-  { id:'mar-raya1', start:'2026-03-21', end:'2026-03-21', title:'Hari Raya Puasa', type:'Cuti Umum', scope:'Malaysia', icon:'🌙' },
-  { id:'mar-raya2', start:'2026-03-22', end:'2026-03-22', title:'Hari Raya Puasa - Hari Kedua', type:'Cuti Umum', scope:'Malaysia', icon:'🌙' },
-  { id:'mar-raya3', start:'2026-03-23', end:'2026-03-23', title:'Hari Raya Puasa - Hari Ketiga', type:'Perayaan', scope:'Perayaan Islam', icon:'🌙' },
-  { id:'mar-johor', start:'2026-03-23', end:'2026-03-23', title:'Hari Keputeraan Sultan Johor', type:'Cuti Negeri', scope:'Johor', icon:'👑' },
+  { id:'mar-kpm-raya1', start:'2026-03-19', end:'2026-03-19', title:'Cuti Tambahan – Hari Raya Aidilfitri', type:'Cuti Sekolah', scope:'Sekolah Johor', icon:'🎒' },
+  { id:'mar-kpm-raya2', start:'2026-03-20', end:'2026-03-20', title:'Cuti Tambahan – Hari Raya Aidilfitri', type:'Cuti Sekolah', scope:'Sekolah Johor', icon:'🎒' },
+  { id:'mar-term1', start:'2026-03-21', end:'2026-03-29', title:'Cuti Penggal 1', type:'Cuti Sekolah', scope:'Sekolah Johor', icon:'🏫' },
+  { id:'mar-raya1', start:'2026-03-21', end:'2026-03-21', title:'Hari Raya Puasa', type:'Cuti Umum', scope:'Johor', icon:'🌙' },
+  { id:'mar-raya2', start:'2026-03-22', end:'2026-03-22', title:'Hari Raya Puasa (Hari Kedua)', type:'Cuti Umum', scope:'Johor', icon:'🌙' },
+  { id:'mar-sultan', start:'2026-03-23', end:'2026-03-23', title:'Hari Keputeraan Rasmi DYMM Sultan Johor', type:'Cuti Negeri', scope:'Johor', icon:'👑' },
+  { id:'mar-replacement', start:'2026-03-24', end:'2026-03-24', title:'Cuti Ganti Negeri Johor', type:'Cuti Negeri', scope:'Johor', icon:'🎉' },
 
-  { id:'apr-fools', start:'2026-04-01', end:'2026-04-01', title:"April Fool's Day", type:'Sambutan', scope:'Antarabangsa', icon:'🎭' },
-  { id:'apr-goodfriday', start:'2026-04-03', end:'2026-04-03', title:'Good Friday', type:'Perayaan', scope:'Kristian', icon:'✝️' },
-  { id:'apr-qingming', start:'2026-04-05', end:'2026-04-05', title:'Ching Ming Festival', type:'Perayaan', scope:'Tradisi Cina', icon:'🌿' },
-  { id:'apr-terengganu', start:'2026-04-26', end:'2026-04-26', title:'Hari Keputeraan Sultan Terengganu', type:'Cuti Negeri', scope:'Terengganu', icon:'👑' },
-
-  { id:'may-labour', start:'2026-05-01', end:'2026-05-01', title:'Hari Pekerja / Labour Day', type:'Cuti Umum', scope:'Malaysia', icon:'🛠️' },
-  { id:'may-mother', start:'2026-05-10', end:'2026-05-10', title:'Hari Ibu', type:'Sambutan', scope:'Antarabangsa', icon:'💐' },
-  { id:'may-teacher', start:'2026-05-16', end:'2026-05-16', title:'Hari Guru', type:'Sambutan', scope:'Malaysia', icon:'👩‍🏫' },
-  { id:'may-perlis', start:'2026-05-17', end:'2026-05-17', title:'Hari Keputeraan Raja Perlis', type:'Cuti Negeri', scope:'Perlis', icon:'👑' },
-  { id:'may-zulhijjah', start:'2026-05-18', end:'2026-05-18', title:'Awal Zulhijjah', type:'Perayaan', scope:'Islam', icon:'🌙' },
-  { id:'may-holpahang', start:'2026-05-22', end:'2026-05-22', title:'Hari Hol Pahang', type:'Cuti Negeri', scope:'Pahang', icon:'🏴' },
+  // MEI & JUN
+  { id:'may-labour', start:'2026-05-01', end:'2026-05-01', title:'Hari Pekerja', type:'Cuti Umum', scope:'Johor', icon:'🛠️' },
+  { id:'may-teacher', start:'2026-05-16', end:'2026-05-16', title:'Hari Guru', type:'Sambutan', scope:'Sekolah', icon:'👩‍🏫' },
+  { id:'may-midyear', start:'2026-05-23', end:'2026-06-07', title:'Cuti Pertengahan Tahun', type:'Cuti Sekolah', scope:'Sekolah Johor', icon:'🌴' },
   { id:'may-arafah', start:'2026-05-26', end:'2026-05-26', title:'Hari Arafah', type:'Perayaan', scope:'Islam', icon:'🕋' },
-  { id:'may-haji1', start:'2026-05-27', end:'2026-05-27', title:'Hari Raya Haji', type:'Cuti Umum', scope:'Malaysia', icon:'🕌' },
-  { id:'may-haji2', start:'2026-05-28', end:'2026-05-28', title:'Hari Raya Haji - Hari Kedua', type:'Perayaan', scope:'Perayaan Islam', icon:'🕌' },
-  { id:'may-harvest1', start:'2026-05-30', end:'2026-05-30', title:'Harvest Festival', type:'Cuti Negeri', scope:'Sabah / Labuan', icon:'🌾' },
-  { id:'may-harvest2', start:'2026-05-31', end:'2026-05-31', title:'Harvest Festival - Hari Kedua', type:'Cuti Negeri', scope:'Sabah / Labuan', icon:'🌾' },
-  { id:'may-wesak', start:'2026-05-31', end:'2026-05-31', title:'Hari Wesak', type:'Cuti Umum', scope:'Malaysia', icon:'🪷' },
+  { id:'may-haji', start:'2026-05-27', end:'2026-05-27', title:'Hari Raya Qurban / Aidiladha', type:'Cuti Umum', scope:'Johor', icon:'🕌' },
+  { id:'may-haji2', start:'2026-05-28', end:'2026-05-28', title:'Aidiladha (Hari Kedua)', type:'Perayaan', scope:'Islam', icon:'🕌' },
+  { id:'may-wesak', start:'2026-05-31', end:'2026-05-31', title:'Hari Wesak', type:'Cuti Umum', scope:'Johor', icon:'🪷' },
+  { id:'jun-agong', start:'2026-06-01', end:'2026-06-01', title:'Hari Keputeraan Seri Paduka Baginda Yang di-Pertuan Agong', type:'Cuti Umum', scope:'Johor', icon:'🇲🇾' },
+  { id:'jun-wesak-repl', start:'2026-06-02', end:'2026-06-02', title:'Cuti Ganti Hari Wesak', type:'Cuti Umum', scope:'Johor', icon:'🪷' },
+  { id:'jun-muharram', start:'2026-06-17', end:'2026-06-17', title:'Awal Muharram (Ma’al Hijrah)', type:'Cuti Umum', scope:'Johor', icon:'🌙' },
 
-  { id:'jun-agong', start:'2026-06-01', end:'2026-06-01', title:'Hari Keputeraan Yang di-Pertuan Agong', type:'Cuti Umum', scope:'Malaysia', icon:'🇲🇾' },
-  { id:'jun-gawai1', start:'2026-06-01', end:'2026-06-01', title:'Hari Gawai / Dayak Day', type:'Cuti Negeri', scope:'Sarawak', icon:'🌾' },
-  { id:'jun-gawai2', start:'2026-06-02', end:'2026-06-02', title:'Hari Gawai / Dayak Day - Hari Kedua', type:'Cuti Negeri', scope:'Sarawak', icon:'🌾' },
-  { id:'jun-muharram', start:'2026-06-17', end:'2026-06-17', title:'1 Muharram / Tahun Baharu Islam', type:'Cuti Umum', scope:'Malaysia', icon:'🌙' },
-  { id:'jun-dragonboat', start:'2026-06-19', end:'2026-06-19', title:'Dragon Boat Festival', type:'Perayaan', scope:'Tradisi Cina', icon:'🐉' },
-  { id:'jun-kedah', start:'2026-06-21', end:'2026-06-21', title:'Hari Keputeraan Sultan Kedah', type:'Cuti Negeri', scope:'Kedah', icon:'👑' },
-  { id:'jun-father', start:'2026-06-21', end:'2026-06-21', title:'Hari Bapa', type:'Sambutan', scope:'Antarabangsa', icon:'👨‍👧' },
-
-  { id:'jul-parent', start:'2026-07-05', end:'2026-07-05', title:"Parents' Day", type:'Sambutan', scope:'Antarabangsa', icon:'👨‍👩‍👧' },
-  { id:'jul-georgetown', start:'2026-07-07', end:'2026-07-07', title:'Georgetown World Heritage City Day', type:'Sambutan', scope:'Pulau Pinang', icon:'🏛️' },
-  { id:'jul-penang', start:'2026-07-11', end:'2026-07-11', title:'Hari Keputeraan Yang di-Pertua Negeri Pulau Pinang', type:'Cuti Negeri', scope:'Pulau Pinang', icon:'👑' },
+  // JULAI
   { id:'jul-holjohor', start:'2026-07-21', end:'2026-07-21', title:'Hari Hol Almarhum Sultan Iskandar', type:'Cuti Negeri', scope:'Johor', icon:'🕊️' },
-  { id:'jul-sarawak', start:'2026-07-22', end:'2026-07-22', title:'Hari Kemerdekaan Sarawak', type:'Cuti Negeri', scope:'Sarawak', icon:'🏴' },
-  { id:'jul-pahang', start:'2026-07-30', end:'2026-07-30', title:'Hari Keputeraan Sultan Pahang', type:'Cuti Negeri', scope:'Pahang', icon:'👑' },
 
-  { id:'aug-qixi', start:'2026-08-19', end:'2026-08-19', title:"Chinese Valentine's Day", type:'Perayaan', scope:'Tradisi Cina', icon:'💞' },
-  { id:'aug-melaka', start:'2026-08-24', end:'2026-08-24', title:'Hari Keputeraan Yang di-Pertua Negeri Melaka', type:'Cuti Negeri', scope:'Melaka', icon:'👑' },
-  { id:'aug-maulid', start:'2026-08-25', end:'2026-08-25', title:'Maulidur Rasul', type:'Cuti Umum', scope:'Malaysia', icon:'🕌' },
-  { id:'aug-hungryghost', start:'2026-08-26', end:'2026-08-26', title:'Hungry Ghost Festival', type:'Perayaan', scope:'Tradisi Cina', icon:'🏮' },
-  { id:'aug-ghost', start:'2026-08-27', end:'2026-08-27', title:'The Ghost Festival', type:'Perayaan', scope:'Tradisi Cina', icon:'🏮' },
-  { id:'aug-merdeka', start:'2026-08-31', end:'2026-08-31', title:'Hari Merdeka / Independence Day', type:'Cuti Umum', scope:'Malaysia', icon:'🇲🇾' },
+  // OGOS & SEPTEMBER
+  { id:'aug-maulid', start:'2026-08-25', end:'2026-08-25', title:'Hari Keputeraan Nabi Muhammad S.A.W. (Maulidur Rasul)', type:'Cuti Umum', scope:'Johor', icon:'🕌' },
+  { id:'aug-term2', start:'2026-08-29', end:'2026-09-06', title:'Cuti Penggal 2', type:'Cuti Sekolah', scope:'Sekolah Johor', icon:'🏫' },
+  { id:'aug-merdeka', start:'2026-08-31', end:'2026-08-31', title:'Hari Kebangsaan', type:'Cuti Umum', scope:'Johor', icon:'🇲🇾' },
+  { id:'sep-malaysia', start:'2026-09-16', end:'2026-09-16', title:'Hari Malaysia', type:'Cuti Umum', scope:'Johor', icon:'🇲🇾' },
+  { id:'sep-midautumn', start:'2026-09-25', end:'2026-09-25', title:'Pesta Pertengahan Musim Luruh', type:'Perayaan', scope:'Perayaan Cina', icon:'🥮' },
 
-  { id:'sep-malaysia', start:'2026-09-16', end:'2026-09-16', title:'Hari Malaysia', type:'Cuti Umum', scope:'Malaysia', icon:'🇲🇾' },
-  { id:'sep-midautumn', start:'2026-09-25', end:'2026-09-25', title:'Mid-Autumn Festival', type:'Perayaan', scope:'Tradisi Cina', icon:'🥮' },
-  { id:'sep-kelantan1', start:'2026-09-29', end:'2026-09-29', title:'Hari Keputeraan Sultan Kelantan', type:'Cuti Negeri', scope:'Kelantan', icon:'👑' },
-  { id:'sep-kelantan2', start:'2026-09-30', end:'2026-09-30', title:'Hari Keputeraan Sultan Kelantan - Hari Kedua', type:'Cuti Negeri', scope:'Kelantan', icon:'👑' },
+  // NOVEMBER
+  { id:'nov-deepavali', start:'2026-11-08', end:'2026-11-08', title:'Hari Deepavali', type:'Cuti Umum', scope:'Johor', icon:'🪔' },
+  { id:'nov-deepavali-repl', start:'2026-11-09', end:'2026-11-09', title:'Cuti Ganti Hari Deepavali', type:'Cuti Umum', scope:'Johor', icon:'🪔' },
+  { id:'nov-kpm-deepavali', start:'2026-11-10', end:'2026-11-10', title:'Cuti Tambahan – Hari Deepavali', type:'Cuti Sekolah', scope:'Sekolah Johor', icon:'🎒' },
 
-  { id:'oct-sabah', start:'2026-10-03', end:'2026-10-03', title:'Hari Keputeraan Yang di-Pertua Negeri Sabah', type:'Cuti Negeri', scope:'Sabah', icon:'👑' },
-  { id:'oct-sarawakgov', start:'2026-10-10', end:'2026-10-10', title:'Hari Keputeraan Yang di-Pertua Negeri Sarawak', type:'Cuti Negeri', scope:'Sarawak', icon:'👑' },
-  { id:'oct-ninth', start:'2026-10-18', end:'2026-10-18', title:'Double Ninth Festival', type:'Perayaan', scope:'Tradisi Cina', icon:'🌼' },
-  { id:'oct-halloween', start:'2026-10-31', end:'2026-10-31', title:'Halloween', type:'Sambutan', scope:'Antarabangsa', icon:'🎃' },
-
-  { id:'nov-perak', start:'2026-11-06', end:'2026-11-06', title:'Hari Keputeraan Sultan Perak', type:'Cuti Negeri', scope:'Perak', icon:'👑' },
-  { id:'nov-deepavali', start:'2026-11-08', end:'2026-11-08', title:'Deepavali', type:'Cuti Umum', scope:'Malaysia', icon:'🪔' },
-
-  { id:'dec-selangor', start:'2026-12-11', end:'2026-12-11', title:'Hari Keputeraan Sultan Selangor', type:'Cuti Negeri', scope:'Selangor', icon:'👑' },
-  { id:'dec-solstice', start:'2026-12-22', end:'2026-12-22', title:'Winter Solstice', type:'Perayaan', scope:'Tradisi Cina', icon:'🍡' },
-  { id:'dec-eve', start:'2026-12-24', end:'2026-12-24', title:'Christmas Eve', type:'Sambutan', scope:'Kristian', icon:'🎄' },
-  { id:'dec-christmas', start:'2026-12-25', end:'2026-12-25', title:'Hari Krismas / Christmas', type:'Cuti Umum', scope:'Malaysia', icon:'🎄' }
+  // DISEMBER
+  { id:'dec-yearend', start:'2026-12-05', end:'2026-12-31', title:'Cuti Akhir Persekolahan', type:'Cuti Sekolah', scope:'Sekolah Johor', icon:'🎒' },
+  { id:'dec-eve', start:'2026-12-24', end:'2026-12-24', title:'Malam Krismas', type:'Sambutan', scope:'Kristian', icon:'🎄' },
+  { id:'dec-christmas', start:'2026-12-25', end:'2026-12-25', title:'Hari Krismas', type:'Cuti Umum', scope:'Johor', icon:'🎄' }
 ]);
 
 const state = {
   month: new Date().getFullYear() === CONFIG.YEAR ? new Date().getMonth() : 0,
   events: [],
+  customHolidays: [],
   isAdmin: false,
   token: sessionStorage.getItem('takwimAdminToken') || ''
 };
@@ -120,17 +94,19 @@ async function init() {
   bindEvents();
   await restoreAdminSession();
   await loadEvents({ preferApi: false });
+  await loadCustomHolidays();
 }
 
 function cacheElements() {
   [
-    'loadingOverlay','loadingText','schoolLogo','schoolName','adminBtn','printBtn','refreshBtn','logoutBtn',
+    'loadingOverlay','loadingText','schoolLogo','schoolName','adminBtn','printBtn','refreshBtn','logoutBtn','addHolidayBtn','addHolidayBtn2',
     'holidayScheduleBtn','holidayScheduleBtn2','prevMonthBtn','nextMonthBtn','monthSelect','adminBadge','monthTitle','programCount',
     'holidayCount','holidayDayCount','calendarGrid','emptyMonthMessage','holidaySummaryTitle','holidaySummaryStats','holidaySummaryList',
     'loginModal','loginForm','adminIdInput','adminPasswordInput','eventModal','eventModalTitle','eventForm','eventId','eventDate',
     'eventTime','eventTitle','eventPlace','eventCategory','eventNotes','saveEventBtn','deleteEventBtn','holidayModal','holidayModalTitle',
-    'holidayModalSubtitle','holidayTableBody','downloadHolidayBtn','printHolidayBtn','holidayPrintSheet','holidayPrintLogo','holidayPrintSchool',
-    'holidayPrintTitle','holidayPrintBody','toast'
+    'holidayModalSubtitle','holidayTableBody','printHolidayBtn','holidayPrintSheet','holidayPrintLogo','holidayPrintSchool',
+    'holidayPrintTitle','holidayPrintBody','holidayEditModal','holidayEditForm','holidayEditTitle','holidayEditId','holidayStart','holidayEnd',
+    'holidayTitle','holidayType','holidayScope','holidayIcon','holidayNotes','saveHolidayBtn','deleteHolidayBtn','toast'
   ].forEach(id => el[id] = document.getElementById(id));
 }
 
@@ -151,12 +127,15 @@ function bindEvents() {
   el.prevMonthBtn.addEventListener('click', () => changeMonth(-1));
   el.nextMonthBtn.addEventListener('click', () => changeMonth(1));
   el.monthSelect.addEventListener('change', e => { state.month = Number(e.target.value); renderCalendar(); });
-  el.refreshBtn.addEventListener('click', () => loadEvents({ preferApi: state.isAdmin }));
+  el.refreshBtn.addEventListener('click', () => refreshAllData({ preferApi: state.isAdmin }));
   el.printBtn.addEventListener('click', () => window.print());
   el.holidayScheduleBtn.addEventListener('click', () => openHolidaySchedule());
   el.holidayScheduleBtn2.addEventListener('click', () => openHolidaySchedule());
-  el.downloadHolidayBtn.addEventListener('click', downloadHolidayCsv);
   el.printHolidayBtn.addEventListener('click', printHolidaySchedule);
+  el.addHolidayBtn.addEventListener('click', () => openHolidayForAdd());
+  el.addHolidayBtn2.addEventListener('click', () => openHolidayForAdd());
+  el.holidayEditForm.addEventListener('submit', saveHoliday);
+  el.deleteHolidayBtn.addEventListener('click', deleteHoliday);
   el.adminBtn.addEventListener('click', () => {
     if (state.isAdmin) return showToast('Mod admin sudah aktif.', 'success');
     openModal('login');
@@ -192,6 +171,9 @@ function setAdminUi(active) {
   state.isAdmin = active;
   el.adminBadge.classList.toggle('hidden', !active);
   el.logoutBtn.classList.toggle('hidden', !active);
+  el.addHolidayBtn.classList.toggle('hidden', !active);
+  el.addHolidayBtn2.classList.toggle('hidden', !active);
+  document.body.classList.toggle('admin-active', active);
   el.adminBtn.textContent = active ? '✅ Mod Admin Aktif' : '🔐 Sunting Takwim';
   renderCalendar();
 }
@@ -209,7 +191,7 @@ async function handleLogin(e) {
     closeModal('login');
     setAdminUi(true);
     showToast('Log masuk admin berjaya.', 'success');
-    await loadEvents({ preferApi: true });
+    await refreshAllData({ preferApi: true });
   } catch (err) { showToast(err.message || 'Log masuk gagal.', 'error'); }
   finally { setLoading(false); }
 }
@@ -240,6 +222,53 @@ async function loadEvents({ preferApi = false } = {}) {
     renderCalendar();
     showToast('Data program Google Sheet tidak dapat dimuatkan. Cuti 2026 masih boleh dipaparkan.', 'error');
   } finally { setLoading(false); }
+}
+
+
+async function refreshAllData({ preferApi = false } = {}) {
+  await loadEvents({ preferApi });
+  await loadCustomHolidays();
+}
+
+async function loadCustomHolidays() {
+  if (!isApiConfigured()) { state.customHolidays = []; renderCalendar(); return; }
+  try {
+    const url = new URL(CONFIG.APPS_SCRIPT_URL);
+    url.searchParams.set('action', 'listHolidays');
+    url.searchParams.set('_', String(Date.now()));
+    const res = await fetch(url.toString(), { cache: 'no-store' });
+    const data = safeJson(await res.text());
+    if (!data.success) throw new Error(data.message || 'Gagal membaca cuti tambahan.');
+    state.customHolidays = normalizeCustomHolidays(data.holidays || []);
+    renderCalendar();
+  } catch (err) {
+    console.warn('Cuti tambahan belum dapat dimuatkan:', err);
+    state.customHolidays = [];
+    renderCalendar();
+    if (state.isAdmin) showToast('Modul cuti tambahan belum aktif pada Apps Script. Deploy backend baharu dalam ZIP ini.', 'error');
+  }
+}
+
+function normalizeCustomHolidays(records) {
+  return (records || []).map(r => ({
+    id: String(pick(r, ['id','ID']) || '').trim(),
+    start: normalizeDateString(pick(r, ['start','TARIKH_MULA','tarikhMula'])),
+    end: normalizeDateString(pick(r, ['end','TARIKH_AKHIR','tarikhAkhir'])),
+    title: String(pick(r, ['title','NAMA_CUTI','namaCuti']) || '').trim(),
+    type: normalizeHolidayType(pick(r, ['type','JENIS','jenis'])),
+    scope: String(pick(r, ['scope','SKOP','skop']) || 'Sekolah Johor').trim(),
+    icon: String(pick(r, ['icon','IKON','ikon']) || '🎉').trim(),
+    notes: String(pick(r, ['notes','CATATAN','catatan']) || '').trim(),
+    updatedAt: String(pick(r, ['updatedAt','UPDATED_AT']) || '').trim(),
+    source: 'custom',
+    editable: true
+  })).filter(h => h.id && h.start && h.end && h.title && h.start.startsWith(`${CONFIG.YEAR}-`) && h.end.startsWith(`${CONFIG.YEAR}-`));
+}
+
+function normalizeHolidayType(value) {
+  const allowed = ['Cuti Umum','Cuti Negeri','Cuti Sekolah','Perayaan','Sambutan'];
+  const raw = String(value || '').trim();
+  return allowed.find(x => x.toLowerCase() === raw.toLowerCase()) || 'Cuti Sekolah';
 }
 
 async function loadFromCsv() {
@@ -355,7 +384,7 @@ function renderCalendar() {
     const holidayChips = dayHolidays.map(h => {
       const cls = holidayTypeSlug(h.type);
       return `<button type="button" class="holiday-chip holiday-${cls}" data-holiday-id="${escapeHtml(h.periodId)}" title="${escapeHtml(h.scope)}">
-        <span>${h.icon || '🎉'}</span><strong>${escapeHtml(h.title)}</strong>
+        <span>${h.icon || '🎉'}</span><strong>${escapeHtml(h.title)}${h.source === 'custom' ? ' ✎' : ''}</strong>
       </button>`;
     }).join('');
 
@@ -377,7 +406,7 @@ function renderCalendar() {
   el.calendarGrid.innerHTML = cells.join('');
   el.calendarGrid.querySelectorAll('[data-add-date]').forEach(btn => btn.addEventListener('click', () => openEventForAdd(btn.dataset.addDate)));
   el.calendarGrid.querySelectorAll('[data-event-id]').forEach(btn => btn.addEventListener('click', () => openEventById(btn.dataset.eventId)));
-  el.calendarGrid.querySelectorAll('[data-holiday-id]').forEach(btn => btn.addEventListener('click', () => openHolidaySchedule(btn.dataset.holidayId)));
+  el.calendarGrid.querySelectorAll('[data-holiday-id]').forEach(btn => btn.addEventListener('click', () => handleHolidayClick(btn.dataset.holidayId)));
   renderHolidaySummary();
 }
 
@@ -388,7 +417,7 @@ function renderHolidaySummary() {
   const stats = {
     'Cuti Umum': periods.filter(x => x.type === 'Cuti Umum').length,
     'Cuti Negeri': periods.filter(x => x.type === 'Cuti Negeri').length,
-    'Cuti Sekolah': periods.filter(x => x.type === 'Cuti Sekolah').reduce((n, x) => n + countDays(x.start, x.end), 0),
+    'Cuti Sekolah': periods.filter(x => x.type === 'Cuti Sekolah').reduce((n, x) => n + countDaysInMonth(x.start, x.end, state.month, CONFIG.YEAR), 0),
     'Perayaan / Sambutan': periods.filter(x => x.type === 'Perayaan' || x.type === 'Sambutan').length
   };
   el.holidaySummaryStats.innerHTML = `
@@ -400,16 +429,25 @@ function renderHolidaySummary() {
   el.holidaySummaryList.innerHTML = periods.length ? periods.map(p => `
     <button class="summary-holiday-item" type="button" data-summary-holiday="${p.id}">
       <span class="summary-icon">${p.icon || '🎉'}</span>
-      <span class="summary-copy"><strong>${escapeHtml(formatPeriodDate(p))}</strong><em>${escapeHtml(p.title)}</em></span>
+      <span class="summary-copy"><strong>${escapeHtml(formatPeriodDate(p))}</strong><em>${escapeHtml(p.title)}${p.source === 'custom' ? ' ✎' : ''}</em></span>
       <span class="type-badge type-${holidayTypeSlug(p.type)}">${escapeHtml(p.type)}</span>
       <small>${escapeHtml(p.scope)}</small>
-    </button>`).join('') : '<div class="summary-empty">Tiada cuti/perayaan yang ditandakan dalam sumber untuk bulan ini.</div>';
+    </button>`).join('') : '<div class="summary-empty">Tiada cuti atau perayaan direkodkan untuk bulan ini.</div>';
 
-  el.holidaySummaryList.querySelectorAll('[data-summary-holiday]').forEach(btn => btn.addEventListener('click', () => openHolidaySchedule(btn.dataset.summaryHoliday)));
+  el.holidaySummaryList.querySelectorAll('[data-summary-holiday]').forEach(btn => btn.addEventListener('click', () => handleHolidayClick(btn.dataset.summaryHoliday)));
 }
 
+function getAllHolidayPeriods() {
+  const official = HOLIDAY_PERIODS_2026.map(p => ({ ...p, source:'official', editable:false }));
+  return [...official, ...state.customHolidays];
+}
+
+function findHolidayById(id) { return getAllHolidayPeriods().find(p => p.id === id); }
+
 function getHolidayPeriodsForMonth(month) {
-  return HOLIDAY_PERIODS_2026.filter(p => dateParts(p.start).month === month + 1 || dateParts(p.end).month === month + 1)
+  const targetStart = `${CONFIG.YEAR}-${String(month + 1).padStart(2,'0')}-01`;
+  const targetEnd = `${CONFIG.YEAR}-${String(month + 1).padStart(2,'0')}-${String(new Date(CONFIG.YEAR, month + 1, 0).getDate()).padStart(2,'0')}`;
+  return getAllHolidayPeriods().filter(p => p.start <= targetEnd && p.end >= targetStart)
     .slice().sort((a,b) => a.start.localeCompare(b.start) || a.title.localeCompare(b.title));
 }
 
@@ -434,6 +472,14 @@ function eachDate(start, end, cb) {
 function localDate(key) { const p = dateParts(key); return new Date(p.year, p.month - 1, p.day); }
 function toDateKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function countDays(start, end) { return Math.round((localDate(end) - localDate(start)) / 86400000) + 1; }
+function countDaysInMonth(start, end, monthIndex, year) {
+  let count = 0;
+  eachDate(start, end, date => {
+    const p = dateParts(date);
+    if (p.year === year && p.month === monthIndex + 1) count++;
+  });
+  return count;
+}
 function isTodayKey(key) { const n = new Date(); return n.getFullYear() === CONFIG.YEAR && toDateKey(n) === key; }
 
 function holidayTypeSlug(type) {
@@ -443,24 +489,43 @@ function holidayTypeSlug(type) {
 function openHolidaySchedule(highlightId = '') {
   const periods = getHolidayPeriodsForMonth(state.month);
   el.holidayModalTitle.textContent = `Jadual Cuti • ${MONTHS[state.month]} ${CONFIG.YEAR}`;
-  el.holidayModalSubtitle.textContent = `${periods.length} rekod cuti, perayaan dan sambutan berdasarkan Kalendar Kuda 2026.`;
+  el.holidayModalSubtitle.textContent = `${periods.length} rekod cuti, perayaan dan sambutan bagi ${MONTHS[state.month]} ${CONFIG.YEAR}.`;
   const rows = buildHolidayRows(periods, highlightId);
   el.holidayTableBody.innerHTML = rows;
   el.holidayPrintBody.innerHTML = buildHolidayRows(periods, '');
   el.holidayPrintTitle.textContent = `JADUAL CUTI • ${MONTHS[state.month].toUpperCase()} ${CONFIG.YEAR}`;
+  document.querySelectorAll('.holiday-admin-col').forEach(x => x.classList.toggle('hidden', !state.isAdmin));
   openModal('holiday');
+  el.holidayTableBody.querySelectorAll('[data-edit-holiday]').forEach(btn => btn.addEventListener('click', () => { closeModal('holiday'); openHolidayForEdit(btn.dataset.editHoliday); }));
   if (highlightId) setTimeout(() => el.holidayTableBody.querySelector('.row-highlight')?.scrollIntoView({block:'center',behavior:'smooth'}), 80);
 }
 
+function printHolidaySchedule() {
+  const periods = getHolidayPeriodsForMonth(state.month);
+  el.holidayPrintBody.innerHTML = buildHolidayRows(periods, '');
+  el.holidayPrintTitle.textContent = `JADUAL CUTI • ${MONTHS[state.month].toUpperCase()} ${CONFIG.YEAR}`;
+  document.body.classList.add('print-holidays');
+  closeModal('holiday');
+  setTimeout(() => window.print(), 60);
+}
+
+window.addEventListener('afterprint', () => document.body.classList.remove('print-holidays'));
+
 function buildHolidayRows(periods, highlightId) {
-  if (!periods.length) return '<tr><td colspan="5" class="table-empty">Tiada rekod untuk bulan ini.</td></tr>';
-  return periods.map(p => `<tr class="${p.id === highlightId ? 'row-highlight' : ''}">
-    <td><strong>${escapeHtml(formatPeriodDate(p))}</strong></td>
-    <td>${escapeHtml(formatPeriodDay(p))}</td>
-    <td><span class="table-icon">${p.icon || '🎉'}</span>${escapeHtml(p.title)}</td>
-    <td><span class="type-badge type-${holidayTypeSlug(p.type)}">${escapeHtml(p.type)}</span></td>
-    <td>${escapeHtml(p.scope)}</td>
-  </tr>`).join('');
+  if (!periods.length) return `<tr><td colspan="${state.isAdmin ? 6 : 5}" class="table-empty">Tiada rekod untuk bulan ini.</td></tr>`;
+  return periods.map(p => {
+    const actionCell = state.isAdmin
+      ? `<td class="holiday-admin-cell no-print">${p.editable ? `<button class="mini-edit-btn" type="button" data-edit-holiday="${escapeHtml(p.id)}">✏️ Sunting</button>` : '<span class="locked-holiday">🔒 Rasmi</span>'}</td>`
+      : '';
+    return `<tr class="${p.id === highlightId ? 'row-highlight' : ''}">
+      <td><strong>${escapeHtml(formatPeriodDate(p))}</strong></td>
+      <td>${escapeHtml(formatPeriodDay(p))}</td>
+      <td><span class="table-icon">${p.icon || '🎉'}</span>${escapeHtml(p.title)}${p.source === 'custom' ? ' <span class="custom-tag">ADMIN</span>' : ''}</td>
+      <td><span class="type-badge type-${holidayTypeSlug(p.type)}">${escapeHtml(p.type)}</span></td>
+      <td>${escapeHtml(p.scope)}</td>
+      ${actionCell}
+    </tr>`;
+  }).join('');
 }
 
 function formatPeriodDate(p) {
@@ -475,24 +540,95 @@ function formatPeriodDay(p) {
   return `${DAYS[s.getDay()]}–${DAYS[e.getDay()]}`;
 }
 
-function downloadHolidayCsv() {
-  const periods = getHolidayPeriodsForMonth(state.month);
-  const rows = [['Tarikh','Hari','Cuti / Perayaan','Jenis','Skop'], ...periods.map(p => [formatPeriodDate(p),formatPeriodDay(p),p.title,p.type,p.scope])];
-  const csv = '\uFEFF' + rows.map(r => r.map(csvEscape).join(',')).join('\r\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `Jadual_Cuti_${MONTHS[state.month]}_${CONFIG.YEAR}.csv`; a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+
+function handleHolidayClick(id) {
+  const holiday = findHolidayById(id);
+  if (state.isAdmin && holiday && holiday.editable) return openHolidayForEdit(id);
+  openHolidaySchedule(id);
 }
-function csvEscape(v) { const s = String(v ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; }
-function printHolidaySchedule() {
-  const periods = getHolidayPeriodsForMonth(state.month);
-  el.holidayPrintBody.innerHTML = buildHolidayRows(periods, '');
-  el.holidayPrintTitle.textContent = `JADUAL CUTI • ${MONTHS[state.month].toUpperCase()} ${CONFIG.YEAR}`;
-  document.body.classList.add('print-holidays');
-  window.print();
-  setTimeout(() => document.body.classList.remove('print-holidays'), 300);
+
+function openHolidayForAdd(prefillDate = '') {
+  if (!state.isAdmin) return showToast('Sila log masuk sebagai admin untuk menambah cuti.', 'error');
+  const date = prefillDate || `${CONFIG.YEAR}-${String(state.month + 1).padStart(2,'0')}-01`;
+  el.holidayEditId.value = '';
+  el.holidayStart.value = date;
+  el.holidayEnd.value = date;
+  el.holidayTitle.value = '';
+  el.holidayType.value = 'Cuti Sekolah';
+  el.holidayScope.value = 'Sekolah Johor';
+  el.holidayIcon.value = '🎒';
+  el.holidayNotes.value = '';
+  el.holidayEditTitle.textContent = 'Tambah Cuti';
+  el.saveHolidayBtn.textContent = 'Simpan Cuti';
+  el.deleteHolidayBtn.classList.add('hidden');
+  openModal('holidayEdit');
+  setTimeout(() => el.holidayTitle.focus(), 60);
+}
+
+function openHolidayForEdit(id) {
+  if (!state.isAdmin) return;
+  const h = state.customHolidays.find(x => x.id === id);
+  if (!h) return showToast('Cuti rasmi dikunci dan tidak boleh disunting.', 'error');
+  el.holidayEditId.value = h.id;
+  el.holidayStart.value = h.start;
+  el.holidayEnd.value = h.end;
+  el.holidayTitle.value = h.title;
+  el.holidayType.value = h.type;
+  el.holidayScope.value = h.scope || 'Sekolah Johor';
+  el.holidayIcon.value = [...el.holidayIcon.options].some(o => o.value === h.icon) ? h.icon : '🎉';
+  el.holidayNotes.value = h.notes || '';
+  el.holidayEditTitle.textContent = 'Sunting Cuti';
+  el.saveHolidayBtn.textContent = 'Simpan Perubahan';
+  el.deleteHolidayBtn.classList.remove('hidden');
+  openModal('holidayEdit');
+}
+
+async function saveHoliday(e) {
+  e.preventDefault();
+  if (!state.isAdmin) return;
+  const payload = {
+    action: el.holidayEditId.value ? 'updateHoliday' : 'addHoliday',
+    token: state.token,
+    id: el.holidayEditId.value,
+    start: el.holidayStart.value,
+    end: el.holidayEnd.value,
+    title: el.holidayTitle.value.trim(),
+    type: el.holidayType.value,
+    scope: el.holidayScope.value.trim(),
+    icon: el.holidayIcon.value,
+    notes: el.holidayNotes.value.trim()
+  };
+  if (!payload.start || !payload.end || !payload.title) return showToast('Tarikh mula, tarikh akhir dan nama cuti diperlukan.', 'error');
+  if (payload.end < payload.start) return showToast('Tarikh akhir tidak boleh lebih awal daripada tarikh mula.', 'error');
+  setLoading(true, payload.action === 'addHoliday' ? 'Menyimpan cuti...' : 'Mengemas kini cuti...');
+  try {
+    const result = await postApi(payload);
+    if (!result.success) throw new Error(result.message || 'Gagal menyimpan cuti.');
+    closeModal('holidayEdit');
+    showToast(payload.action === 'addHoliday' ? 'Cuti berjaya ditambah.' : 'Cuti berjaya dikemas kini.', 'success');
+    await loadCustomHolidays();
+  } catch (err) {
+    if (/token|sesi|session/i.test(err.message)) logoutAdmin();
+    showToast(err.message || 'Gagal menyimpan cuti.', 'error');
+  } finally { setLoading(false); }
+}
+
+async function deleteHoliday() {
+  if (!state.isAdmin || !el.holidayEditId.value) return;
+  const h = state.customHolidays.find(x => x.id === el.holidayEditId.value);
+  if (!h) return showToast('Cuti rasmi tidak boleh dipadam.', 'error');
+  if (!confirm(`Adakah anda pasti mahu memadam cuti “${h.title}”?`)) return;
+  setLoading(true, 'Memadam cuti...');
+  try {
+    const result = await postApi({ action:'deleteHoliday', token:state.token, id:h.id });
+    if (!result.success) throw new Error(result.message || 'Gagal memadam cuti.');
+    closeModal('holidayEdit');
+    showToast('Cuti berjaya dipadam.', 'success');
+    await loadCustomHolidays();
+  } catch (err) {
+    showToast(err.message || 'Gagal memadam cuti.', 'error');
+  } finally { setLoading(false); }
 }
 
 function openEventForAdd(date) {
@@ -551,8 +687,8 @@ async function deleteEvent() {
 }
 
 function dateParts(date) { const [year,month,day] = String(date).split('-').map(Number); return { year, month, day }; }
-function openModal(name) { ({ login: el.loginModal, event: el.eventModal, holiday: el.holidayModal })[name]?.classList.remove('hidden'); }
-function closeModal(name) { ({ login: el.loginModal, event: el.eventModal, holiday: el.holidayModal })[name]?.classList.add('hidden'); }
+function openModal(name) { ({ login: el.loginModal, event: el.eventModal, holiday: el.holidayModal, holidayEdit: el.holidayEditModal })[name]?.classList.remove('hidden'); }
+function closeModal(name) { ({ login: el.loginModal, event: el.eventModal, holiday: el.holidayModal, holidayEdit: el.holidayEditModal })[name]?.classList.add('hidden'); }
 
 async function postApi(payload) {
   if (!isApiConfigured()) throw new Error('URL Apps Script belum dikonfigurasi.');
