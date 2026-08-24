@@ -1,5 +1,5 @@
 /**
- * TAKWIM SEKOLAH 2026 - BACKEND PROGRAM + CUTI
+ * TAKWIM PINTAR 2026 - BACKEND PROGRAM + CUTI
  * Google Sheet ID: 1ye3NpIRhD0AdjlAVoIeFGjveircuXVlOUDx65jCs80E
  *
  * Tab yang digunakan:
@@ -35,7 +35,7 @@ function doGet(e) {
     if (action === 'health') {
       return json_({
         success: true,
-        service: 'Takwim Sekolah 2026 API',
+        service: 'Takwim Pintar 2026 API',
         year: CONFIG.YEAR,
         programSheet: CONFIG.PROGRAM_SHEET_NAME,
         holidaySheet: CONFIG.HOLIDAY_SHEET_NAME,

@@ -3,7 +3,7 @@
 const CONFIG = Object.freeze({
   YEAR: 2026,
   SCHOOL_NAME: 'SEKOLAH KEBANGSAAN SUNGAI TIRAM',
-  SCHOOL_LOGO_URL: 'https://iili.io/CLva44f.md.png',
+  SCHOOL_LOGO_URL: 'https://iili.io/CtSM5wx.md.png',
   CSV_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSBaeb8q0__d2wKSbw9jpVdAFIAUP7KNqzixHqTTnA9yKD3NO0-la8_gCtj6Ex8PJLlb2S1zE-vqi3/pub?gid=457971484&single=true&output=csv',
   APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzxRYxVp5t3P-xMXJdjWl64afyC8klWCMEG-JO1VdnTB32dVL1aFRffX6NVe_0g181U/exec'
 });
@@ -588,7 +588,7 @@ function getProgramsForMonth(month) {
 }
 
 function summaryModeLabel(mode) {
-  return mode === 'holiday' ? 'Ringkasan Cuti Sahaja' : mode === 'program' ? 'Ringkasan Program Sahaja' : 'Ringkasan Cuti + Program';
+  return mode === 'holiday' ? 'Ringkasan Cuti' : mode === 'program' ? 'Ringkasan Program' : 'Ringkasan Keseluruhan';
 }
 
 function generateMonthlySummary(mode) {

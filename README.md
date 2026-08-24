@@ -1,4 +1,4 @@
-# TAKWIM SEKOLAH 2026 — PROGRAM + CUTI
+# TAKWIM PINTAR 2026 — PROGRAM + CUTI
 
 Versi ini mengandungi penambahbaikan berikut:
 
@@ -106,8 +106,8 @@ Dalam versi ini, pengguna biasa hanya melihat takwim. Butang **Tambah Program Se
 
 ## Kemas kini: Popup Ringkasan Bulanan
 Butang **Jana Ringkasan Bulanan** kini membuka 3 pilihan:
-1. Ringkasan Cuti Sahaja
-2. Ringkasan Program Sahaja
-3. Ringkasan Cuti + Program
+1. Ringkasan Cuti
+2. Ringkasan Program
+3. Ringkasan Keseluruhan
 
 Ringkasan menggunakan bulan yang sedang dipilih dan boleh dicetak terus. Perubahan ini hanya melibatkan frontend; Apps Script program + cuti yang sedia ada tidak perlu diubah.
