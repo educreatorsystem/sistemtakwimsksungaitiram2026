@@ -104,7 +104,7 @@ function setupTakwimSystem2026() {
 
   return {
     success: true,
-    message: 'Setup Takwim 2026 selesai. Tab Program2026 dan Cuti2026 telah disediakan.',
+    message: 'Setup Takwim Pintar 2026 selesai. Tab Program2026 dan Cuti2026 telah disediakan.',
     programSheet: programSheet.getName(),
     programColumns: PROGRAM_HEADERS,
     holidaySheet: holidaySheet.getName(),

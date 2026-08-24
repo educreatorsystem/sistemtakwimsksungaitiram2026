@@ -133,7 +133,7 @@ function cacheElements() {
 }
 
 function applyBranding() {
-  document.title = `${CONFIG.SCHOOL_NAME} — Takwim ${CONFIG.YEAR}`;
+  document.title = `Takwim Pintar ${CONFIG.YEAR} — ${CONFIG.SCHOOL_NAME}`;
   el.schoolName.textContent = CONFIG.SCHOOL_NAME;
   el.schoolLogo.src = CONFIG.SCHOOL_LOGO_URL;
   el.holidayPrintLogo.src = CONFIG.SCHOOL_LOGO_URL;
@@ -249,7 +249,7 @@ function logoutAdmin() {
 }
 
 async function loadEvents({ preferApi = false } = {}) {
-  setLoading(true, 'Memuatkan takwim 2026...');
+  setLoading(true, 'Memuatkan Takwim Pintar 2026...');
   try {
     let records = [];
 
